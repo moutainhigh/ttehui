@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.ps.model.CustomerInfo">
+    <resultMap id="get-CustomerInfo-result" type="com.mocentre.tehui.ps.model.CustomerInfo">
+        <id property="id" column="id"/>
+        <!-- 手机号-->
+        <result property="telephone" column="telephone"/>
+        <!-- openid-->
+        <result property="openid" column="openid"/>
+        <!-- abcaid-->
+        <result property="abcaid" column="abcaid"/>
+        <!-- 注册密码-->
+        <result property="password" column="encryptedPassword"/>
+        <!-- 密码随机数-->
+        <result property="randomNum" column="random_num"/>
+        <!-- 注册时间-->
+        <result property="registerTime" column="register_time"/>
+        <!-- 最近一次登入时间-->
+        <result property="lastLoginTime" column="last_login_time"/>
+        <!--用户名 -->
+        <result property="userName" column="user_name"/>
+        <!-- 性别-->
+        <result property="sex" column="sex"/>
+        <!-- 生日-->
+        <result property="birthday" column="birthday"/>
+        <!-- 邮箱-->
+        <result property="email" column="email"/>
+        <!-- 用户头像-->
+        <result property="profile" column="profile"/>
+        <!-- 积分-->
+        <result property="integral" column="integral"/>
+        <!-- 等级-->
+        <result property="level" column="level"/>
+        <!-- 成长值-->
+        <result property="growth" column="growth"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="CustomerInfo_Base_Column_List">
+        id, telephone, openid,abcaid, random_num, register_time,
+        password, last_login_time, user_name, sex, birthday, 
+        email, profile, integral, level, growth,
+        is_deleted, gmt_created, gmt_modified
+    </sql>
+
+    <select id="CustomerInfo_get" resultMap="get-CustomerInfo-result">
+        select
+            <include refid="CustomerInfo_Base_Column_List"/>
+        from
+            ps_t_customer_info
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="CustomerInfo_getPassword" resultType="String">
+        select
+            password
+        from
+            ps_t_customer_info
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    
+    <select id="CustomerInfo_list" resultMap="get-CustomerInfo-result">
+        select
+            <include refid="CustomerInfo_Base_Column_List"/>
+        from
+            ps_t_customer_info
+        <where>
+            <if test="userName != null and userName != ''" >
+	            and user_name = #{userName}
+            </if>
+            <if test="tel != null and tel != ''" >
+	        	and telephone = #{tel}
+            </if>
+            <if test="openid != null and openid != ''" >
+	        	and openid = #{openid}
+            </if>
+            <if test="telephone != null and telephone != ''" >
+               and telephone like concat('%',#{telephone},'%')
+            </if>
+            <if test="abcaid != null and abcaid != ''" >
+               and abcaid = #{abcaid}
+            </if>
+            <if test="regBeginTime!=null and regBeginTime !=''">
+				and date_format(register_time, '%Y%m%d')<![CDATA[>=]]>date_format(#{regBeginTime}, '%Y%m%d')
+			</if>
+			<if test="regEndTime!=null and regEndTime !='' ">
+				and date_format(register_time, '%Y%m%d')<![CDATA[<=]]>date_format(#{regEndTime}, '%Y%m%d')
+			</if>
+            and	is_deleted = 0
+        </where>
+    </select>
+
+	<update id="CustomerInfo_update" parameterType="com.mocentre.tehui.ps.model.CustomerInfo">
+		update
+          ps_t_customer_info
+		<set>
+			<if test="telephone != null" >
+               telephone = #{telephone},
+            </if>
+			<if test="openid != null and openid != ''"  >
+                openid = #{openid},
+            </if>
+            <if test="abcaid != null and abcaid != ''" >
+                abcaid = #{abcaid},
+            </if>
+            <if test="randomNum != null and randomNum != ''"  >
+                random_num = #{randomNum},
+            </if>
+            <if test="encryptedPassword != null and encryptedPassword != ''" >
+               password = #{encryptedPassword},
+            </if>
+            <if test="lastLoginTime != null" >
+               last_login_time = #{lastLoginTime},
+            </if>
+            <if test="userName != null" >
+               user_name = #{userName},
+            </if>
+            <if test="sex != null" >
+               sex = #{sex},
+            </if>
+            <if test="birthday != null" >
+               birthday = #{birthday},
+            </if>
+            <if test="email != null" >
+               email = #{email},
+            </if>
+            <if test="profile != null" >
+               profile = #{profile},
+            </if>
+            <if test="integral != null" >
+               integral = #{integral},
+            </if>
+            <if test="level != null" >
+               level = #{level},
+            </if>
+            <if test="growth != null" >
+               growth = #{growth},
+            </if>
+            gmt_modified = now()
+		</set>
+		where
+			id = #{id}
+	</update>
+
+    <insert id="CustomerInfo_insert" parameterType="com.mocentre.tehui.ps.model.CustomerInfo">
+        insert into  ps_t_customer_info
+			(telephone,openid,abcaid,password,random_num,register_time,
+             last_login_time,user_name,sex,birthday,email,
+             profile,integral,level,growth,gmt_created,gmt_modified)
+        values
+            (#{telephone}, #{openid},#{abcaid}, #{encryptedPassword}, #{randomNum}, now(),
+             #{lastLoginTime}, #{userName}, #{sex}, #{birthday}, #{email},
+             #{profile}, #{integral}, #{level}, #{growth}, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <update id="CustomerInfo_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+        update
+            ps_t_customer_info
+        set
+            is_deleted=1 ,gmt_modified = now()
+        where
+            id = #{id}
+    </update>
+
+    <!--批量删除-->
+    <update id="CustomerInfo_del_ids" parameterType="java.util.List">
+        update ps_t_customer_info
+        set
+            is_deleted=1 ,gmt_modified = now()
+        where
+            id in
+        <foreach collection="list" item = "item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.sub.model.Subject">
+	<resultMap id="get-Subject-result" type="com.mocentre.tehui.sub.model.Subject">
+		<id property="id" column="id" />
+		<!-- 店铺id -->
+		<result property="shopId" column="shop_id" />
+		<!-- 专题名称 -->
+		<result property="title" column="title" />
+		<!-- 专题模板id -->
+		<result property="subTmpCode" column="sub_tmp_code" />
+		<!-- 顶部banner -->
+		<result property="topBanner" column="top_banner" />
+		<!-- 投放城市 -->
+		<result property="beCity" column="be_city" />
+		<!-- 投放经度 -->
+		<result property="beLongitude" column="be_longitude" />
+		<!-- 投放纬度 -->
+		<result property="beLatitude" column="be_latitude" />
+		<!-- 是否展示 -->
+		<result property="isShow" column="is_show" />
+		<!-- 专题简介 -->
+		<result property="intro" column="intro" />
+		<!-- 排序 -->
+		<result property="sorting" column="sorting" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="Subject_Base_Column_List">
+		id, shop_id,  title, sub_tmp_code, top_banner,
+		be_city, be_longitude, be_latitude, is_show, intro,
+		sorting, 
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<select id="Subject_get" resultMap="get-Subject-result">
+		select
+			<include refid="Subject_Base_Column_List" />
+		from
+			sub_t_subject
+		where
+				is_deleted = 0 
+			and id = #{id} 
+	</select>
+	
+	<select id="Subject_list" resultMap="get-Subject-result">
+		select
+			<include refid="Subject_Base_Column_List" />
+		from
+			sub_t_subject
+		<where>
+				is_deleted= 0 
+			<if test="shopId != null">
+            	and shop_id = #{shopId}
+        	</if>
+        	<if test="id != null">
+            	and id = #{id}
+        	</if>
+        	<if test="isShow != null">
+            	and is_show = #{isShow}
+        	</if>
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='sorting'">
+					sorting
+				</when>
+			</choose>
+			${orderBy}
+		</if>
+	</select>
+
+	<insert id="Subject_insert" parameterType="com.mocentre.tehui.sub.model.Subject">
+		insert into sub_t_subject
+			(shop_id, title, sub_tmp_code, top_banner,
+			 be_city, be_longitude, be_latitude, is_show,
+			 intro, sorting,
+			 gmt_created, gmt_modified)
+		values
+			(#{shopId}, #{title}, #{subTmpCode}, #{topBanner},
+			 #{beCity}, #{beLongitude}, #{beLatitude}, #{isShow},
+			 #{intro}, #{sorting},
+			 now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="Subject_update" parameterType="com.mocentre.tehui.sub.model.Subject">
+		update
+			sub_t_subject
+		<set>
+			shop_id = #{shopId}, 
+		 	title = #{title}, 
+		 	sub_tmp_code = #{subTmpCode}, 
+		 	top_banner = #{topBanner},
+		 	be_city = #{beCity},
+		 	be_longitude = #{beLongitude},
+		 	be_latitude = #{beLatitude},
+		 	is_show = #{isShow},
+		 	intro = #{intro},
+		 	sorting = #{sorting},
+			gmt_modified = now()
+		</set>
+		where 
+				is_deleted = 0 
+			and id = #{id} 
+			and shop_id = #{shopId}
+	</update>
+
+	<update id="Subject_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update 
+			sub_t_subject
+		set
+			is_deleted = 1
+		where 
+			id = #{id}
+	</update>
+	
+	<update id="Subject_updateShow" parameterType="java.util.Map">
+		update sub_t_subject
+		set
+			gmt_modified = now() ,is_show = #{isShow}
+		where
+			id = #{id}
+	</update> 
+
+</mapper>

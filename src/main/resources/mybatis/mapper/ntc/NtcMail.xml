@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.ntc.model.NtcMail">
+	<resultMap id="get-NtcMail-result" type="com.mocentre.tehui.ntc.model.NtcMail">
+		<id property="id" column="id" />
+		<!-- 通知类型（refund:退款通知，buy:下单通知） -->
+		<result property="noticeType" column="notice_type" />
+		<!-- 邮件地址 -->
+		<result property="mail" column="mail" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="NtcMail_Base_Column_List">
+		id,notice_type,mail,gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<select id="NtcMail_get" resultMap="get-NtcMail-result">
+		select
+			<include refid="NtcMail_Base_Column_List" />
+		from
+				ntc_t_mail
+		where
+				is_deleted = 0 
+			and id = #{id} 
+	</select>
+	
+	<select id="NtcMail_list" resultMap="get-NtcMail-result">
+		select
+			<include refid="NtcMail_Base_Column_List" />
+		from
+				ntc_t_mail
+		<where>
+				is_deleted= 0 
+			<if test="noticeType != null">
+            	and notice_type = #{noticeType}
+        	</if>
+		</where>
+	</select>
+
+	<insert id="NtcMail_insert" parameterType="com.mocentre.tehui.ntc.model.NtcMail">
+		insert into ntc_t_mail
+			(notice_type,mail,gmt_created, gmt_modified)
+		values
+			(#{noticeType}, #{mail}, now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="NtcMail_update" parameterType="com.mocentre.tehui.ntc.model.NtcMail">
+		update
+			ntc_t_mail
+		<set>
+			notice_type = #{noticeType},
+			mail = #{mail},
+			gmt_modified = now()
+		</set>
+		where is_deleted = 0 and id = #{id}
+	</update>
+
+	<update id="NtcMail_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update 
+			ntc_t_mail
+		set
+			is_deleted = 1
+		where id = #{id}
+	</update>
+
+</mapper>

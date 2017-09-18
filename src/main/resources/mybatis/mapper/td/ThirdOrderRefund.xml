@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.td.model.ThirdOrderRefund">
+	<resultMap id="get-ThirdOrderRefund-result" type="com.mocentre.tehui.td.model.ThirdOrderRefund">
+		<id property="id" column="id" />
+    	<result property="refundNum" column="refund_num" />
+    	<result property="orderNum" column="order_num" />
+    	<result property="appKey" column="app_key" />
+    	<result property="refundStatus" column="refund_status" />
+    	<result property="irspRef" column="irsp_ref" />
+    	<result property="batchStatus" column="batch_status" />
+    	<result property="batchNo" column="batch_no" />
+    	<result property="refundFee" column="refund_fee" />
+    	<result property="totalFee" column="total_fee" />
+    	<result property="mchId" column="mch_id" />
+    	<result property="voucherNo" column="voucher_no" />
+    	<result property="hostDate" column="host_date" />
+    	<result property="hostTime" column="host_time" />
+    	<result property="isDeleted" column="is_deleted" />
+    	<result property="gmtCreated" column="gmt_created" />
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="ThirdOrderRefund_Base_Column_List">
+		id, refund_num, order_num, app_key, refund_status,
+    	irsp_ref, batch_status, batch_no, refund_fee, voucher_no,
+    	host_date, host_time, total_fee, mch_id, 
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="ThirdOrderRefund_get" resultMap="get-ThirdOrderRefund-result">
+		select
+    		<include refid="ThirdOrderRefund_Base_Column_List" />
+	 	from 
+			buy_t_order_refund
+		where 
+			id = #{id}
+    </select>
+	
+	<select id="ThirdOrderRefund_list"  resultMap="get-ThirdOrderRefund-result">
+		select
+			<include refid="ThirdOrderRefund_Base_Column_List" />
+		from 
+			buy_t_order_refund    
+		where 
+			is_deleted = 0
+    </select>
+	
+   <insert id="ThirdOrderRefund_insert" parameterType="com.mocentre.tehui.td.model.ThirdOrderRefund" >
+      insert into buy_t_order_refund
+		(
+			refund_num, order_num, order_detail_id, refund_status, irsp_ref,
+			batch_status, batch_no, refund_fee, voucher_no, host_date, host_time,
+			total_fee, mch_id, order_detail_num, 
+			is_deleted, gmt_created, gmt_modified
+		)
+		values
+		(
+			#{refundNum}, #{orderNum}, #{orderDetailId}, #{refundStatus}, #{irspRef},
+			#{batchStatus}, #{batchNo}, #{refundFee}, #{voucherNo}, #{hostDate}, #{hostTime},
+			#{totalFee}, #{mchId}, #{orderDetailNum},
+			0, now(), now()
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+</mapper>

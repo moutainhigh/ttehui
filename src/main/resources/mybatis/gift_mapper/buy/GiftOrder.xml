@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.gift.buy.model.GiftOrder">
+	<resultMap id="get-GiftOrder-result" type="com.mocentre.gift.buy.model.GiftOrder">
+		<id property="id" column="id" />
+		<!-- 订单编号-->
+    	<result property="orderNum" column="order_num" />
+		<!-- 商品总价-->
+    	<result property="totalPrice" column="total_price" />
+		<!-- 下单时间-->
+    	<result property="orderTime" column="order_time" />
+		<!-- 订单状态（等待买家付款  等待卖家发货  等待确认收货  交易成功  交易关闭）-->
+    	<result property="orderStatus" column="order_status" />
+		<!-- 收货地址id-->
+    	<result property="addressId" column="address_id" />
+		<!-- 用户id-->
+    	<result property="customerId" column="customer_id" />
+		<!-- 商品数量-->
+    	<result property="goodsNum" column="goods_num" />
+		<!-- 商品类型数量-->
+    	<result property="typeNum" column="type_num" />
+		<!-- 发票状态（have_open：已开发票 no_open：未开发票）-->
+    	<result property="billStatus" column="bill_status" />
+		<!-- 收件人-->
+    	<result property="recipient" column="recipient" />
+		<!-- 联系电话-->
+    	<result property="telephone" column="telephone" />
+		<!-- 收货地址-->
+    	<result property="address" column="address" />
+		<!-- 快递公司-->
+    	<result property="expCompany" column="exp_company" />
+		<!-- 快递单号-->
+    	<result property="expNum" column="exp_num" />
+		<!-- 备注-->
+    	<result property="note" column="note" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+
+	<sql id="GiftOrder_Base_Column_List">
+		id, order_num, total_price,
+    	 order_time, order_status,
+    	address_id, customer_id,goods_num,type_num,bill_status, recipient, telephone, address,
+    	note,exp_company,exp_num, is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<select id="GiftOrder_get" resultMap="get-GiftOrder-result">
+		select
+    		<include refid="GiftOrder_Base_Column_List" />
+	 	from
+		gift_buy_t_order
+		where 
+			is_deleted = 0
+			and id = #{id}
+    </select>
+
+	<insert id="GiftOrder_insert" parameterType="com.mocentre.gift.buy.model.GiftOrder" >
+		insert into gift_buy_t_order
+		(order_num, total_price,
+		order_time, order_status,
+		address_id, customer_id,goods_num,type_num,bill_status, recipient, telephone, address,
+		note,exp_company,exp_num, is_deleted, gmt_created, gmt_modified)
+		values
+		(#{orderNum}, #{totalPrice},
+		now(), #{orderStatus}, #{addressId},
+		#{customerId},#{goodsNum},#{typeNum},#{billStatus}, #{recipient}, #{telephone}, #{address},
+		#{note},#{expCompany},#{expNum}, 0, now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="GiftOrder_update" parameterType="com.mocentre.gift.buy.model.GiftOrder">
+		update gift_buy_t_order
+		set
+		<if test="orderStatus!=null and orderStatus!=''">
+			order_status = #{orderStatus},
+		</if>
+		<if test="totalPrice!=null and totalPrice!=''">
+			total_price = #{totalPrice},
+		</if>
+		<if test="addressId!=null and addressId!=''">
+			address_id = #{addressId},
+		</if>
+		<if test="billStatus!=null and billStatus!=''">
+			bill_status = #{billStatus},
+		</if>
+		<if test="recipient!=null and recipient!=''">
+			recipient = #{recipient},
+		</if>
+		<if test="telephone!=null and telephone!=''">
+			telephone = #{telephone},
+		</if>
+		<if test="address!=null and address!=''">
+			address = #{address},
+		</if>
+		<if test="expCompany != null and expCompany !=''">
+			exp_company = #{expCompany},
+		</if>
+		<if test="expNum != null and expNum !=''">
+			exp_num = #{expNum},
+		</if>
+		<if test="goodsNum != null and goodsNum !=''">
+			goods_num = #{goodsNum},
+		</if>
+		<if test="typeNum != null and typeNum !=''">
+			type_num = #{typeNum},
+		</if>
+		gmt_modified = now()
+		where
+		id = #{id}
+		<if test="orderNum != null and orderNum !=''">
+			and order_num = #{orderNum}
+		</if>
+	</update>
+
+	<delete id="GiftOrder_logic_delete" parameterType="com.mocentre.gift.buy.model.GiftOrder">
+		update gift_buy_t_order
+		set
+		is_deleted = 1
+		where
+		is_deleted = 0
+		<if test="orderNum != null and orderNum != ''">
+			and order_num = #{orderNum}
+		</if>
+		<if test="id != null">
+			and id = #{id}
+		</if>
+	</delete>
+
+	<select id="GiftOrder_list" resultMap="get-GiftOrder-result">
+		select
+		<include refid="GiftOrder_Base_Column_List" />
+		from
+		gift_buy_t_order
+		where
+		is_deleted = 0
+		<if test="id!=null">
+			and id=#{id}
+		</if>
+		<if test="orderStatus!=null and orderStatus!=''">
+			and order_status = #{orderStatus}
+		</if>
+		<if test="telephone!=null and telephone!=''">
+			and telephone like concat(concat('%', #{telephone}),'%')
+		</if>
+		<if test="recipient!=null and recipient!=''">
+			and recipient like concat(concat('%', #{recipient}),'%')
+		</if>
+		<if test="orderNum!=null and orderNum!=''">
+			and order_num like concat(concat('%', #{orderNum}),'%')
+		</if>
+		<if test="customerId!=null">
+			and customer_id = #{customerId}
+		</if>
+		<if test="customerIdList != null">
+			and customer_id in
+			<foreach collection="customerIdList" item="item" index="index"
+					 open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</if>
+		<if test="column!=null and column!=''">
+			order by
+			<choose>
+				<when test="column=='telephone'">
+					telephone
+				</when>
+				<when test="column=='orderNum'">
+					order_num
+				</when>
+				<when test="column=='totalPrice'">
+					total_price
+				</when>
+				<when test="column=='orderTime'">
+					order_time
+				</when>
+			</choose>
+			${orderBy}
+		</if>
+	</select>
+
+</mapper>

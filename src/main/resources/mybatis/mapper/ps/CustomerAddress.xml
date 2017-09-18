@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.ps.model.CustomerAddress">
+    <resultMap id="get-CustomerAddress-result" type="com.mocentre.tehui.ps.model.CustomerAddress">
+        <id property="id" column="id"/>
+        <!-- 用户id-->
+        <result property="customerId" column="customer_id"/>
+        <!-- 收件人-->
+        <result property="recipient" column="recipient"/>
+        <!-- 收件人电话-->
+        <result property="telephone" column="telephone"/>
+        <!-- 省份-->
+        <result property="province" column="province"/>
+        <!-- 市-->
+        <result property="city" column="city"/>
+        <!-- 区-->
+        <result property="area" column="area"/>
+        <!-- 详细地址-->
+        <result property="address" column="address"/>
+        <!-- 邮政编码-->
+        <result property="postCode" column="post_code"/>
+        <!-- 收货时间-->
+        <result property="period" column="period"/>
+        <!-- 是否为默认收货地址-->
+        <result property="isDefault" column="is_default"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="CustomerAddress_Base_Column_List">
+        id, customer_id, recipient,telephone, province,city,area,address,post_code,period,is_default
+    </sql>
+
+    <select id="CustomerAddress_get" resultMap="get-CustomerAddress-result">
+        select
+            <include refid="CustomerAddress_Base_Column_List"/>
+        from
+            ps_t_customer_address
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="CustomerAddress_list" resultMap="get-CustomerAddress-result">
+        select
+            <include refid="CustomerAddress_Base_Column_List"/>
+        from
+            ps_t_customer_address
+        where
+        		is_deleted = 0
+	        <if test="customerId != null">
+	            and customer_id = #{customerId}
+	        </if>
+	        <if test="id != null">
+	            and id = #{id}
+	        </if>
+	        <if test="isDefault != null">
+                and is_default = #{isDefault}
+            </if>
+    </select>
+
+	<update id="CustomerAddress_update" parameterType="com.mocentre.tehui.ps.model.CustomerAddress">
+		update
+          ps_t_customer_address
+		<set>
+            <if test="recipient != null">
+                recipient = #{recipient},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone},
+            </if>
+            <if test="province != null">
+                province = #{province},
+            </if>
+            <if test="city != null">
+                city = #{city},
+            </if>
+            <if test="area != null">
+                area = #{area},
+            </if>
+            <if test="address != null">
+                address = #{address},
+            </if>
+            <if test="postCode != null">
+                post_code = #{postCode},
+            </if>
+            <if test="period != null">
+                period = #{period},
+            </if>
+            <if test="isDefault != null">
+                is_default = #{isDefault},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+			and customer_id = #{customerId}
+	</update>
+	
+    <insert id="CustomerAddress_insert" parameterType="com.mocentre.tehui.ps.model.CustomerAddress">
+        insert into  ps_t_customer_address
+            (customer_id, recipient, telephone, province, city, 
+             area, address, post_code, period, is_default, 
+             is_deleted, gmt_created, gmt_modified)
+        values
+            (#{customerId}, #{recipient}, #{telephone}, #{province}, #{city},
+             #{area}, #{address}, #{postCode}, #{period}, #{isDefault},
+             0, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <!-- 根据id删除 delById-->
+    <update id="CustomerAddress_del_id" parameterType="long">
+        update
+            ps_t_customer_address
+        set
+            is_deleted=1 ,gmt_modified = now()
+        where
+            id = #{id}
+    </update>
+    
+    <!--批量删除 delById-->
+    <update id="CustomerAddress_del_ids" parameterType="java.util.List">
+        update ps_t_customer_address
+        set
+            is_deleted=1 ,gmt_modified = now()
+        where
+            id in
+        <foreach collection="list" item = "item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!--根据用户id删除 delByCustomerId-->
+    <update id="CustomerAddress_del_customerId" parameterType="long">
+        update
+        ps_t_customer_address
+        set
+        is_deleted=1 ,gmt_modified = now()
+        where
+        customer_id = #{customerId}
+    </update>
+
+    <!--根据用户idList批量删除 delByCustomerId-->
+    <update id="CustomerAddress_del_customerIds" parameterType="java.util.List">
+        update ps_t_customer_address
+        set
+        is_deleted=1 ,gmt_modified = now()
+        where
+        customer_id in
+        <foreach collection="list" item = "item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    
+     <!-- 除id外其余改为非默认-->
+    <update id="CustomerAddress_updateDefult" parameterType="com.mocentre.tehui.ps.model.CustomerAddress">
+        update
+            ps_t_customer_address
+        set
+         	is_default = 0,
+            gmt_modified = now()
+        where
+       			is_deleted=0 
+            and customer_id = #{customerId}
+       		<if test="id != null">
+                and id != #{id}
+            </if>
+    </update>
+</mapper>

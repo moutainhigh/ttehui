@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.system.model.Image">
+	<resultMap id="get-Image-result" type="com.mocentre.tehui.system.model.Image">
+		<id property="id" column="id" />
+		<!-- 图片类型（logo:logo thumbnail:缩略图 banner:banner other:其他）-->
+    	<result property="type" column="type" />
+		<!-- 来源类型（seckill:秒杀  groupon:团购 common:普通）-->
+		<result property="sourceType" column="source_type" />
+		<!-- 图片位置（goods:商品 discover:发现页）-->
+    	<result property="seat" column="seat" />
+    	<!-- 对应图片位置id-->
+    	<result property="seatId" column="seat_id" />
+		<!-- 图片地址-->
+    	<result property="location" column="location" />
+		<!-- 链接地址-->
+    	<result property="linkUrl" column="link_url" />
+		<!-- 排序-->
+		<result property="sorting" column="sorting" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="Image_Base_Column_List">
+		id, type, seat, source_type,
+		seat_id, location, link_url, sorting,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="Image_get"  resultMap="get-Image-result">
+		select
+    		<include refid="Image_Base_Column_List" />
+	 	from 
+			sys_t_image
+		where 
+			id = #{id}
+    </select>
+	
+	<select id="Image_list"  resultMap="get-Image-result">
+		select
+    		<include refid="Image_Base_Column_List" />
+	 	from 
+			sys_t_image  
+		where
+			is_deleted = 0
+		  	<if test="type != null and type !=''" >
+				and type = #{type}
+           	</if>
+			<if test="sourceType != null and sourceType !=''" >
+				and source_type = #{sourceType}
+			</if>
+         	<if test="location != null and location !=''" >
+				and location = #{location}
+           	</if>
+           	<if test="seatId != null" >
+				and seat_id = #{seatId}
+           	</if>
+           	<if test="seat != null and seat !=''" >
+				and seat = #{seat}
+           	</if>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='sorting'">
+					sorting
+				</when>
+				<otherwise>
+					gmt_created
+				</otherwise>
+			</choose>
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+    </select>
+	
+   <insert id="Image_insert" parameterType="com.mocentre.tehui.system.model.Image" >
+      insert into sys_t_image(
+		type, source_type, seat, seat_id, location,
+	    link_url, sorting, is_deleted, gmt_created,
+	    gmt_modified)
+		values(
+		#{type}, #{sourceType}, #{seat}, #{seatId},
+	    #{location}, #{linkUrl}, #{sorting},
+		0, now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="Image_update" parameterType="com.mocentre.tehui.system.model.Image">
+    	update sys_t_image
+			set
+          		<if test="type != null and type !=''" >
+					type = #{type},
+            	</if>
+				<if test="sourceType != null and sourceType !=''" >
+					source_type = #{sourceType},
+				</if>
+				<if test="location != null and location !=''" >
+					location = #{location},
+				</if>
+				<if test="seatId != null" >
+					seat_id = #{seatId},
+				</if>
+				<if test="seat != null and seat !=''" >
+					seat = #{seat},
+				</if>
+          		<if test="location != null and location !=''" >
+					location = #{location},
+            	</if>
+				<if test="linkUrl != null and linkUrl !=''" >
+					link_url = #{linkUrl},
+				</if>
+				<if test="sorting != null" >
+					sorting = #{sorting},
+				</if>
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="Image_logicDeleteByPrimaryKey" parameterType="com.mocentre.tehui.system.model.Image">
+    	update sys_t_image
+			set
+				is_deleted = 1
+    	where 
+			id = #{id}
+    </update>
+    
+	<delete id="Image_delete" parameterType="com.mocentre.tehui.system.model.Image">
+    	delete from sys_t_image
+		<where> 
+			<if test="type != null and type !=''" >
+				and type = #{type}
+           	</if>
+			<if test="sourceType != null and sourceType !=''" >
+				and source_type = #{sourceType}
+			</if>
+         	<if test="location != null and location !=''" >
+				and location = #{location}
+           	</if>
+           	<if test="seatId != null" >
+				and seat_id = #{seatId}
+           	</if>
+           	<if test="seat != null and seat !=''" >
+				and seat = #{seat}
+           	</if>		
+       </where>
+  	</delete>
+  	
+</mapper>

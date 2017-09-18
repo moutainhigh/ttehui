@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.OrderRefund">
+	<resultMap id="get-OrderRefund-result" type="com.mocentre.tehui.buy.model.OrderRefund">
+		<id property="id" column="id" />
+		<!-- 退款单号-->
+    	<result property="refundNum" column="refund_num" />
+		<!-- 订单编号-->
+    	<result property="orderNum" column="order_num" />
+    	<!-- 订单详情编号-->
+    	<result property="orderDetailNum" column="order_detail_num" />
+		<!-- 订单详情id-->
+    	<result property="orderDetailId" column="order_detail_id" />
+		<!-- 退款状态（success:退款成功 fail:退款失败）-->
+    	<result property="refundStatus" column="refund_status" />
+		<!-- 交易流水号-->
+    	<result property="irspRef" column="irsp_ref" />
+		<!-- 交易状态-->
+    	<result property="batchStatus" column="batch_status" />
+		<!-- 交易批次号-->
+    	<result property="batchNo" column="batch_no" />
+		<!-- 退款金额-->
+    	<result property="refundFee" column="refund_fee" />
+    	<!-- 订单金额-->
+    	<result property="totalFee" column="total_fee" />
+    	<!-- 商户id -->
+    	<result property="mchId" column="mch_id" />
+		<!-- 交易凭证号-->
+    	<result property="voucherNo" column="voucher_no" />
+		<!-- 银行交易日期-->
+    	<result property="hostDate" column="host_date" />
+		<!-- 银行交易时间-->
+    	<result property="hostTime" column="host_time" />
+    	<!-- 错误码-->
+    	<result property="errorCode" column="error_code" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="OrderRefund_Base_Column_List">
+		id, refund_num, order_detail_num, order_num, order_detail_id, refund_status,
+    	irsp_ref, batch_status, batch_no, refund_fee, voucher_no,
+    	host_date, host_time, total_fee, mch_id, error_code,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="OrderRefund_get" resultMap="get-OrderRefund-result">
+		select
+    		<include refid="OrderRefund_Base_Column_List" />
+	 	from 
+			buy_t_order_refund
+		where 
+			id = #{id}
+    </select>
+	
+	<select id="OrderRefund_list"  resultMap="get-OrderRefund-result">
+		select
+			<include refid="OrderRefund_Base_Column_List" />
+		from 
+			buy_t_order_refund    
+		where 
+			is_deleted = 0
+    </select>
+	
+   <insert id="OrderRefund_insert" parameterType="com.mocentre.tehui.buy.model.OrderRefund" >
+      insert into buy_t_order_refund
+		(
+			refund_num, order_num, order_detail_id, refund_status, irsp_ref,
+			batch_status, batch_no, refund_fee, voucher_no, host_date, host_time,
+			total_fee, mch_id, order_detail_num, error_code,
+			is_deleted, gmt_created, gmt_modified
+		)
+		values
+		(
+			#{refundNum}, #{orderNum}, #{orderDetailId}, #{refundStatus}, #{irspRef},
+			#{batchStatus}, #{batchNo}, #{refundFee}, #{voucherNo}, #{hostDate}, #{hostTime},
+			#{totalFee}, #{mchId}, #{orderDetailNum}, #{errorCode},
+			0, now(), now()
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+</mapper>

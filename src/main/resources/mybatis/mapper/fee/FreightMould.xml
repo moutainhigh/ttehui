@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.fee.model.FreightMould">
+    <resultMap id="get-FreightMould-result" type="com.mocentre.tehui.fee.model.FreightMould">
+        <id property="id" column="id"/>
+        <!-- 店铺id-->
+        <result property="shopId" column="shop_id"/>
+        <!-- 模板名称-->
+        <result property="name" column="name"/>
+        <!-- 发货地址-->
+        <result property="sendAddr" column="send_addr"/>
+        <!-- 发货时间（1.付款后12小时内；2.付款后24小时内...）-->
+        <result property="sendDate" column="send_date"/>
+        <!-- 是否包邮（free.卖家承担运费 nofree.自定义运费）-->
+        <result property="isFree" column="is_free"/>
+        <!-- 计价方式（num.按件数 weight.按重量 ）-->
+        <result property="calcWay" column="calc_way"/>
+        <!-- 是否指定包邮条件-->
+        <result property="postRequire" column="post_require"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+        <!-- 是否被使用掉-->
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+    <sql id="FreightMould_Base_Column_List">
+        id, 
+        shop_id,
+        name, 
+        send_addr,
+        send_date,
+        is_free,
+        calc_way,
+        post_require,
+        gmt_created, 
+        gmt_modified, 
+        is_deleted
+    </sql>
+	<!-- 根据id和shopid获取具体信息 -->
+    <select id="FreightMould_getFreightMould" resultMap="get-FreightMould-result">
+        select
+        	<include refid="FreightMould_Base_Column_List"/>
+        from
+       	 	fee_t_freight_mould
+        where
+        	id = #{id} and shop_id = #{shopId} and is_deleted = 0
+    </select>
+    
+    <!-- 分页查询 -->
+    <select id="FreightMould_list" resultMap="get-FreightMould-result">
+		select
+			<include refid="FreightMould_Base_Column_List" />
+		from
+			fee_t_freight_mould
+		<where>
+			is_deleted= 0 
+			<if test="shopId != null">
+            and shop_id = #{shopId}
+        	</if>
+        	<if test="id != null">
+            and id = #{id}
+        	</if>
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='isFree'">
+					is_free
+				</when>
+			</choose>
+			${orderBy}
+		</if>
+	</select>
+	
+	<insert id="FreightMould_insert" parameterType="com.mocentre.tehui.fee.model.FreightMould">
+		insert into fee_t_freight_mould
+			(gmt_created,
+			gmt_modified,
+			shop_id,
+			name,
+			send_addr,
+			send_date,
+			is_free,
+			calc_way,
+			post_require)
+		values
+			(now(),
+			now(),
+			#{shopId},
+			#{name},
+			#{sendAddr},
+			#{sendDate},
+			#{isFree},
+			#{calcWay},
+			#{postRequire}
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	
+	<update id="FreightMould_update" parameterType="com.mocentre.tehui.fee.model.FreightMould">
+		update 
+			fee_t_freight_mould
+		set
+			name = #{name},
+			shop_id = #{shopId},
+			send_addr = #{sendAddr},
+			send_date = #{sendDate},
+			is_free = #{isFree},
+			calc_way = #{calcWay},
+			post_require = #{postRequire},
+			gmt_modified = now()
+		where
+			is_deleted = 0 and id = #{id}
+	</update>
+	
+	<delete id="FreightMould_delByIdList" parameterType="java.util.List">
+		delete from fee_t_freight_mould
+		where 
+			id in
+		<foreach collection="list" item = "item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</delete>
+</mapper>

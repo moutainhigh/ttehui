@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.OrderBill">
+	<resultMap id="get-OrderBill-result" type="com.mocentre.tehui.buy.model.OrderBill">
+		<id property="id" column="id" />
+		<!-- 用户id-->
+    	<result property="customerId" column="customer_id" />
+		<!-- 订单id-->
+    	<result property="orderId" column="order_id" />
+		<!-- 订单编码-->
+    	<result property="orderNum" column="order_num" />
+		<!-- 发票抬头-->
+    	<result property="billHeader" column="bill_header" />
+		<!-- 发票备注-->
+    	<result property="billRemark" column="bill_remark" />
+		<!-- 发票类型（personal:个人  compay:公司）-->
+    	<result property="billType" column="bill_type" />
+		<!-- 发票状态（have_open：已开发票  no_open：未开发票）-->
+    	<result property="billStatus" column="bill_status" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="OrderBill_Base_Column_List">
+		id, customer_id, order_id, order_num, bill_header,
+    	bill_remark, bill_type, bill_status,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="OrderBill_list" resultMap="get-OrderBill-result">
+		select
+			<include refid="OrderBill_Base_Column_List" />
+	 	from 
+			buy_t_order_bill
+		<where>
+			<if test="orderNum!=null and orderNum!=''">
+				and order_num=#{orderNum}
+			</if>   
+			and is_deleted = 0
+		</where>
+    </select>
+	
+   <insert id="OrderBill_insert" parameterType="com.mocentre.tehui.buy.model.OrderBill" >
+      insert into buy_t_order_bill(
+		customer_id, order_num, bill_header, bill_remark,
+		bill_type, bill_status, 
+		is_deleted, gmt_created, gmt_modified)
+		values(
+		#{customerId}, #{orderNum}, #{billHeader}, #{billRemark},
+		#{billType}, #{billStatus},
+		0, #{gmtCreated}, #{gmtModified})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <insert id="OrderBill_insert_batch" parameterType="com.mocentre.tehui.buy.model.OrderBill" >
+      insert into buy_t_order_bill(
+		customer_id, order_num, bill_header, bill_remark,
+		bill_type, bill_status, 
+		is_deleted, gmt_created, gmt_modified)
+		values
+		<foreach collection ="list" item ="item" index ="index" separator =",">
+		(#{item.customerId}, #{item.orderNum}, #{item.billHeader}, #{item.billRemark},
+		#{item.billType}, #{item.billStatus},
+		0, #{item.gmtCreated}, #{item.gmtModified})
+		</foreach>
+    </insert>
+    
+    <update id="OrderBill_update" parameterType="com.mocentre.tehui.buy.model.OrderBill">
+    	update buy_t_order_bill
+		set
+			<if test="billHeader!=null and billHeader!=''">
+				bill_header = #{billHeader},
+			</if>
+			<if test="billRemark!=null and billRemark!=''">
+				bill_remark = #{billRemark},
+			</if>
+			<if test="billType!=null and billType!=''">
+				bill_type = #{billType},
+			</if>
+        	gmt_modified = now()
+    	where 
+			order_num = #{orderNum}
+    </update>
+    
+    <update id="OrderBill_logicDelete" parameterType="com.mocentre.tehui.buy.model.OrderBill">
+		update buy_t_order_bill
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+</mapper>

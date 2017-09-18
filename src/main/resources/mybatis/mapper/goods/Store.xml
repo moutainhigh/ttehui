@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.Store">
+	<resultMap id="get-Store-result" type="com.mocentre.tehui.goods.model.Store">
+		<id property="id" column="id" />
+		<!-- 用户id-->
+    	<result property="customerId" column="customer_id" />
+		<!-- 店铺id -->
+    	<result property="shopId" column="shop_id" />
+		<!-- 店铺名称 -->
+    	<result property="shopName" column="shop_name" />
+		<!-- 商品id -->
+    	<result property="goodsId" column="goods_id" />
+		<!-- 商品名称-->
+    	<result property="goodsName" column="goods_name" />
+		<!-- 商品logo地址-->
+    	<result property="showLogo" column="show_logo" />
+		<!-- 商品原价-->
+    	<result property="oldPrice" column="old_price" />
+		<!-- 商品售价-->
+    	<result property="sellPrice" column="sell_price" />
+		<!-- 收藏时间-->
+    	<result property="storeTime" column="store_time" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="Store_Base_Column_List">
+		id, 
+		customer_id, 
+		shop_id, 
+		shop_name, 
+		goods_id,
+		goods_name, 
+		show_logo,
+		old_price,
+		sell_price,
+		store_time
+		gmt_created,
+        gmt_modified,
+        is_deleted
+	</sql>
+	
+	<select id="Store_list" resultMap="get-Store-result">
+		select
+    		<include refid="Store_Base_Column_List" />
+	 	from
+			gd_t_store
+		<where>
+				is_deleted= 0 
+			<if test="id != null">
+            	and id = #{id}
+        	</if>
+			<if test="customerId != null">
+            	and customer_id = #{customerId}
+        	</if>
+        	<if test="shopId != null">
+            	and shop_id = #{shopId}
+        	</if>
+        	<if test="shopName != null">
+            	and shop_name = #{shopName}
+        	</if>
+        	<if test="goodsId != null">
+            	and goods_id = #{goodsId}
+        	</if>
+        	<if test="goodsName != null">
+            	and goods_name = #{goodsName}
+        	</if>
+        	<if test="storeTime != null">
+            	and store_time = #{storeTime}
+        	</if>
+		</where>
+    </select>
+    
+    <select id="Store_count" resultType="java.lang.Integer">
+		select
+    		count(1)
+	 	from
+			gd_t_store
+		<where>
+				is_deleted= 0 
+			<if test="id != null">
+            	and id = #{id}
+        	</if>
+			<if test="customerId != null">
+            	and customer_id = #{customerId}
+        	</if>
+        	<if test="shopId != null">
+            	and shop_id = #{shopId}
+        	</if>
+        	<if test="goodsId != null">
+            	and goods_id = #{goodsId}
+        	</if>
+		</where>
+    </select>
+	
+   <insert id="Store_insert" parameterType="com.mocentre.tehui.goods.model.Store" >
+      insert into gd_t_store
+		(
+		customer_id, 
+		shop_id, 
+		shop_name, 
+		goods_id,
+		goods_name, 
+		show_logo,
+		old_price,
+		sell_price,
+		store_time,
+		gmt_created,
+        gmt_modified
+		)
+		values
+		(
+		#{customerId},
+		#{shopId},
+		#{shopName},
+		#{goodsId},
+		#{goodsName},
+		#{showLogo},
+		#{oldPrice},
+		#{sellPrice},
+		now(),
+		now(),
+		now()
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+	
+	<delete id="Store_delete" parameterType="com.mocentre.tehui.goods.model.Store">
+		delete 
+			from gd_t_store
+		where
+				shop_id = #{shopId} 
+			and goods_id = #{goodsId} 
+			and customer_id = #{customerId}
+	</delete>
+  	
+</mapper>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.Coupon">
+	<resultMap id="get-Coupon-result" type="com.mocentre.tehui.goods.model.Coupon">
+		<id property="id" column="id" />
+		<!-- 优惠券名称-->
+    	<result property="couponName" column="coupon_name" />
+		<!-- 优惠券面额 -->
+    	<result property="couponMoney" column="coupon_money" />
+		<!-- 是否限制数量（1.是 0.否）-->
+    	<result property="isLimit" column="is_limit" />
+		<!-- 是否为外部领取（1.是 0.否）-->
+		<result property="isOuter" column="is_outer" />
+		<!-- 优惠券数量 -->
+    	<result property="couponNum" column="coupon_num" />
+		<!-- 优惠券起始编号-->
+    	<result property="firstNum" column="first_num" />
+    	<!-- 关联类型（no:全场通用 goods:指定商品 category:指定分类）-->
+    	<result property="relateType" column="relate_type" />
+		<!-- 商品id或分类id-->
+    	<result property="typeIds" column="type_ids" />
+    	<!-- 优惠券/码 0:优惠券 1:优惠码-->
+    	<result property="couponType" column="coupon_type" />
+		<!-- 满多少可用-->
+    	<result property="fullCut" column="full_cut" />
+		<!-- 店铺id-->
+    	<result property="shopId" column="shop_id" />
+		<!-- 开始时间-->
+    	<result property="beginTime" column="begin_time" />
+    	<!-- 结束时间-->
+    	<result property="endTime" column="end_time" />
+		<!-- 优惠券sn-->
+    	<result property="couponSn" column="coupon_sn" />
+		<!-- 优惠券说明-->
+    	<result property="couponDes" column="coupon_des" />
+		<!-- 描述-->
+    	<result property="description" column="description" />
+    	<!-- 编码类型 -->
+    	<result property="snType" column="sn_type" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="Coupon_Base_Column_List">
+		id, coupon_name, coupon_money, is_limit,is_outer, coupon_num,
+		first_num, shop_id, relate_type, type_ids, coupon_type, 
+		full_cut, begin_time, end_time, coupon_sn, coupon_des,
+		description, sn_type, gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+    <select id="Coupon_get" resultMap="get-Coupon-result">
+		select
+    		<include refid="Coupon_Base_Column_List" />
+	 	from 
+			gd_t_coupon
+		where 
+				id = #{id}
+			and is_deleted = 0 
+    </select>
+	
+	<select id="Coupon_list" resultMap="get-Coupon-result">
+		select
+    		<include refid="Coupon_Base_Column_List" />
+	 	from
+			gd_t_coupon
+		<where>
+        	<if test="id != null">
+            	and id = #{id}
+        	</if>
+			<if test="shopId != null">
+            	and shop_id = #{shopId}
+        	</if>
+        	<if test="notExpired != null">
+        		and date_format(now(), '%Y%m%d')<![CDATA[>=]]>date_format(begin_time, '%Y%m%d')
+        		and date_format(now(), '%Y%m%d')<![CDATA[<=]]>date_format(end_time, '%Y%m%d')
+        	</if>
+        	<if test="beginTime != null">
+            	and date_format(#{beginTime}, '%Y%m%d')<![CDATA[<=]]>date_format(begin_time, '%Y%m%d')
+        	</if>
+        	<if test="endTime != null">
+            	and date_format(#{endTime}, '%Y%m%d')<![CDATA[>=]]>date_format(end_time, '%Y%m%d')
+        	</if>
+        	<if test="couponName != null and couponName !=''">
+            	and coupon_name = #{couponName}
+        	</if>
+			<if test="isOuter != null">
+				and is_outer = #{isOuter}
+			</if>
+			and is_deleted= 0 
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by 
+		<choose>
+			<when test="orderColumn='beginTime'"> 
+				begin_time
+			</when>
+			<when test="orderColumn='endTime'"> 
+				end_time
+			</when>
+			<when test="orderColumn='couponMoney'"> 
+				coupon_money
+			</when>
+			<when test="orderColumn='couponNum'"> 
+				coupon_num
+			</when>
+		</choose> 
+			${orderBy}
+		</if>
+    </select>
+	
+   <insert id="Coupon_insert" parameterType="com.mocentre.tehui.goods.model.Coupon" >
+      insert into gd_t_coupon
+		(coupon_name, coupon_money, is_limit, is_outer, coupon_num, first_num,
+		shop_id, relate_type, type_ids, coupon_type, full_cut, 
+		begin_time, end_time, coupon_sn, coupon_des, description,
+		sn_type, gmt_created,gmt_modified)
+		values
+		(#{couponName}, #{couponMoney}, #{isLimit}, #{isOuter}, #{couponNum}, #{firstNum},
+		#{shopId}, #{relateType}, #{typeIds}, #{couponType}, #{fullCut}, 
+		#{beginTime}, #{endTime}, #{couponSn}, #{couponDes}, #{description}, 
+		#{snType}, now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="Coupon_update" parameterType="com.mocentre.tehui.goods.model.Coupon">
+    	update gd_t_coupon
+		set
+		  	<if test="couponName != null and couponName != ''">
+                coupon_name = #{couponName},
+            </if>
+            <if test="couponMoney != null">
+                coupon_money = #{couponMoney},
+            </if>
+            <if test="couponNum != null couponNum != 0">
+                coupon_num = #{couponNum},
+            </if>
+            <if test="firstNum != null">
+                first_num = #{firstNum},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+            <if test="beginTime != null">
+                begin_time = #{beginTime},
+            </if>
+            <if test="fullCut != null">
+                full_cut = #{fullCut},
+            </if>
+            <if test="couponDes != null and couponDes != ''">
+                coupon_des = #{couponDes},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+			gmt_modified = now()
+    	where 
+			id = #{id} and shop_id = #{shopId}
+    </update>
+    
+    <update id="Coupon_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update gd_t_coupon
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update> 
+	
+	<delete id="Coupon_deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from gd_t_coupon
+		where 
+			id = #{id}
+  	</delete>
+  	
+</mapper>

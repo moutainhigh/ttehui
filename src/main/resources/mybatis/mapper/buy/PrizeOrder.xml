@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.PrizeOrder">
+    <resultMap id="get-PrizeOrder-result" type="com.mocentre.tehui.buy.model.PrizeOrder">
+        <id property="id" column="id" />
+        <!-- 奖品图片 -->
+        <result property="prizeImg" column="prize_img" />
+        <!-- 奖品名称 -->
+        <result property="prizeName" column="prize_name" />
+        <!-- 开始时间 -->
+        <result property="startTime" column="start_time" />
+        <!-- 结束时间 -->
+        <result property="endTime" column="end_time" />
+        <!-- 发货状态 -->
+        <result property="sendStatus" column="send_status" />
+        <!-- 用户id -->
+        <result property="customerId" column="customer_id" />
+        <!-- 发货地址id -->
+        <result property="addressId" column="address_id" />
+        <!-- 收货人 -->
+        <result property="recipient" column="recipient" />
+        <!-- 电话号码 -->
+        <result property="telephone" column="telephone" />
+        <!-- 收获地址 -->
+        <result property="address" column="address" />
+        <!-- 物流公司code -->
+        <result property="logisticsCode" column="logistics_code" />
+        <!-- 物流公司名称 -->
+        <result property="company" column="company" />
+        <!-- 物流单号 -->
+        <result property="logisticsNum" column="logistics_num" />
+        <!-- 创建时间 -->
+        <result property="gmtCreated" column="gmt_created" />
+        <!-- 修改时间 -->
+        <result property="gmtModified" column="gmt_modified" />
+        <!-- 是否删除 -->
+        <result property="isDeleted" column="is_deleted" />
+    </resultMap>
+
+    <sql id="PrizeOrder_Base_Column_List">
+        id,prize_img,prize_name,start_time,end_time,send_status,customer_id,address_id,
+        recipient,telephone,address,logistics_code,company,logistics_num,gmt_created,gmt_modified
+    </sql>
+
+    <select id="PrizeOrder_get" resultMap="get-PrizeOrder-result">
+        select
+        <include refid="PrizeOrder_Base_Column_List" />
+        from
+        buy_t_prize_order
+        where
+        is_deleted = 0
+        and id = #{id}
+    </select>
+
+    <select id="PrizeOrder_list" resultMap="get-PrizeOrder-result">
+        select
+        <include refid="PrizeOrder_Base_Column_List" />
+        from
+        buy_t_prize_order
+        where
+            is_deleted= 0
+            <if test="prizeName != null and prizeName != '' ">
+                and prize_name like CONCAT('%',#{prizeName},'%')
+            </if>
+            <if test="customerId != null">
+                and customer_id = #{customerId}
+            </if>
+            <if test="startTime != null">
+                and date_format(#{startTime}, '%Y%m%d')<![CDATA[<=]]>date_format(start_time, '%Y%m%d')
+            </if>
+            <if test="endTime != null">
+                and date_format(#{endTime}, '%Y%m%d')<![CDATA[>=]]>date_format(end_time, '%Y%m%d')
+            </if>
+            <if test="sendStatus != null and sendStatus != '' ">
+                and send_status = #{sendStatus}
+            </if>
+        <if test="column!=null and column!=''">
+            order by
+            <choose>
+                <when test="column=='prizeName'">
+                    prize_name
+                </when>
+                <when test="column=='gmtCreated'">
+                    gmt_created
+                </when>
+                <otherwise>
+                    gmt_created
+                </otherwise>
+            </choose>
+            <if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+        </if>
+    </select>
+
+    <insert id="PrizeOrder_insert" parameterType="com.mocentre.tehui.buy.model.PrizeOrder">
+        insert into buy_t_prize_order
+        (prize_img,prize_name,start_time,end_time,send_status,customer_id,address_id,
+        recipient,telephone,address,logistics_code,company,logistics_num,gmt_created, gmt_modified)
+        values
+        (#{prizeImg},#{prizeName},#{startTime},#{endTime},#{sendStatus},#{customerId},#{addressId},
+        #{recipient},#{telephone},#{address},#{logisticsCode},#{company},#{logisticsNum}, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <update id="PrizeOrder_update" parameterType="com.mocentre.tehui.buy.model.PrizeOrder">
+        update
+        buy_t_prize_order
+        <set>
+            <if test="prizeImg != null">
+                prize = #{prizeImg},
+            </if>
+            <if test="prizeName != null and prizeName != '' ">
+                prize_name = #{prizeName},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+            <if test="sendStatus != null">
+                send_status = #{sendStatus},
+            </if>
+            <if test="customerId != null">
+                customer_id = #{customerId},
+            </if>
+            <if test="addressId != null">
+                address_id = #{addressId},
+            </if>
+            <if test="recipient != null">
+                recipient = #{recipient},
+            </if>
+            <if test="telephone != null">
+                telephone = #{telephone},
+            </if>
+            <if test="address != null">
+                address = #{address},
+            </if>
+            <if test="logisticsCode != null">
+                logistics_code = #{logisticsCode},
+            </if>
+            <if test="company != null">
+                company = #{company},
+            </if>
+            <if test="logisticsNum != null">
+                logistics_num = #{logisticsNum},
+            </if>
+            gmt_modified = now()
+        </set>
+        where is_deleted = 0 and id = #{id}
+    </update>
+
+    <update id="PrizeOrder_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+        update
+        buy_t_prize_order
+        set
+        is_deleted = 1
+        where id = #{id}
+    </update>
+
+</mapper>

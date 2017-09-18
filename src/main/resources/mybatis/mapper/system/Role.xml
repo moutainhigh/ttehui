@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.system.model.Role">
+	<resultMap id="get-Role-result" type="com.mocentre.tehui.system.model.Role">
+		<id property="id" column="id" />
+		<!-- 角色名称-->
+    	<result property="roleName" column="role_name" />
+		<!-- 角色状态-->
+    	<result property="status" column="status" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 更新时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除-->
+    	<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+	
+	<sql id="Role_Base_Column_List">
+		id, role_name, status,
+    	gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+	<select id="Role_get" resultMap="get-Role-result">
+		 select
+    		<include refid="Role_Base_Column_List" />
+	 	 from 
+			sys_t_role
+		 where 
+				id = #{id}
+			and is_deleted = 0
+    </select>
+	
+	<select id="Role_list" resultMap="get-Role-result">
+		 select
+    		<include refid="Role_Base_Column_List" />
+	 	 from 
+			sys_t_role 
+		<where>
+			<if test="roleName !=null and roleName != ''">
+				and role_name like concat('%', #{roleName},'%')  
+			</if>
+			<if test="status !=null">
+				and status = #{status}
+			</if>
+			<if test="rName !=null and rName !=''">
+				and role_name = #{rName}
+			</if>
+			and is_deleted = 0
+		</where>   
+    </select>
+    
+   <insert id="Role_insert" parameterType="com.mocentre.tehui.system.model.Role" >
+      insert into sys_t_role(
+		role_name,status,
+		gmt_created,gmt_modified,is_deleted)
+		values(
+		#{roleName},#{status},
+		now(),now(),0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="Role_update" parameterType="com.mocentre.tehui.system.model.Role">
+    	update sys_t_role
+		set
+         	role_name = #{roleName},
+         	status = #{status},
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="Role_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update sys_t_role
+		set
+			is_deleted=1 ,
+			gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+	<delete id="Role_delete" parameterType="com.mocentre.tehui.system.model.Role">
+    	delete from sys_t_role
+		where 
+			id = #{id}
+  	</delete>
+  	
+</mapper>

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.gift.gd.model.GiftGoods">
+    <resultMap id="get-GiftGoods-result" type="com.mocentre.gift.gd.model.GiftGoods">
+        <id property="id" column="id"/>
+        <!-- 分类id  -->
+        <result property="categoryId" column="category_id"/>
+        <!-- 价格 -->
+        <result property="price" column="price"/>
+        <!-- 礼品名称 -->
+        <result property="title" column="title"/>
+        <!-- 是否限制购买 -->
+        <result property="isLimitBuy" column="is_limit_buy"/>
+        <!-- 限制购买数量 -->
+        <result property="limitNums" column="limit_nums"/>
+        <!-- 是否通过审核（待审核:uncheck，已通过:checkpass，未通过:checkfail） -->
+        <result property="isChecked" column="is_checked"/>
+        <!-- 上下架状态（待上架:notshelf，已上架:onshelf，已下架:offshelf） -->
+        <result property="isShow" column="is_show"/>
+        <!-- 商品描述 -->
+        <result property="describe" column="describe"/>
+        <!-- 排序 -->
+        <result property="sorting" column="sorting"/>
+        <!-- 列表页展示图片 -->
+        <result property="imgListPagePc" column="img_listPage_pc"/>
+        <!-- 列表页展示图片 -->
+        <result property="imgListPageMobile" column="img_listPage_mobile"/>
+        <!-- 发货方式 -->
+        <result property="deliveryType" column="delivery_type"/>
+        <!-- 详细页顶部banner -->
+        <result property="imgBanner" column="img_banner"/>
+        <!-- 图文详细页 -->
+        <result property="details" column="details"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+        <!-- 是否删除-->
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+
+    <sql id="GiftGoods_Base_Column_List">
+        id, category_id, title, price, is_limit_buy, limit_nums,
+        is_checked, is_show, `describe`, delivery_type, sorting,
+        img_listPage_pc, img_listPage_mobile,img_banner, details,
+        gmt_created, gmt_modified, is_deleted
+    </sql>
+
+    <!-- get -->
+    <select id="GiftGoods_get" resultMap="get-GiftGoods-result">
+        select
+            <include refid="GiftGoods_Base_Column_List"/>
+        from
+            gift_gd_t_goods
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <!-- queryList-->
+    <select id="GiftGoods_list" resultMap="get-GiftGoods-result">
+        select
+            <include refid="GiftGoods_Base_Column_List"/>
+        from
+            gift_gd_t_goods
+        <where>
+            is_deleted= 0
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="categoryId != null ">
+                and category_id = #{categoryId}
+            </if>
+            <if test="title != null and title != ''">
+                and title LIKE CONCAT(CONCAT('%',#{title}),'%')
+            </if>
+            <if test="price != null ">
+                and price = #{price}
+            </if>
+            <if test="isLimitBuy != null">
+                and is_limit_buy = #{isLimitBuy}
+            </if>
+            <if test="limitNums != null">
+                and limit_nums = #{limitNums}
+            </if>
+            <if test="isChecked != null and isChecked != ''">
+                and is_checked = #{isChecked}
+            </if>
+            <if test="isShow != null and isShow != ''">
+                and is_show = #{isShow}
+            </if>
+            <if test="describe != null and describe != ''">
+                and `describe` = #{describe}
+            </if>
+            <if test="sorting != null">
+                and sorting = #{sorting}
+            </if>
+        </where>
+        <if test="column!=null and column!=''">
+            order by
+            <choose>
+                <when test="column=='sorting'">
+                    sorting
+                </when>
+            </choose>
+            ${orderBy}
+        </if>
+    </select>
+
+    <!-- queryParam-->
+    <select id="GiftGoods_byParam" resultMap="get-GiftGoods-result">
+        select
+            <include refid="GiftGoods_Base_Column_List"/>
+        from
+            gift_gd_t_goods
+        where
+            is_deleted = 0
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="categoryId != null ">
+            and category_id = #{categoryId}
+        </if>
+        <if test="title != null ">
+            and title = #{title}
+        </if>
+        <if test="price != null ">
+            and price = #{price}
+        </if>
+        <if test="isLimitBuy != null">
+            and is_limit_buy = #{isLimitBuy}
+        </if>
+        <if test="limitNums != null">
+            and limit_nums = #{limitNums}
+        </if>
+        <if test="isChecked != null and isChecked != ''">
+            and is_checked = #{isChecked}
+        </if>
+        <if test="isShow != null and isShow != ''">
+            and is_show = #{isShow}
+        </if>
+        <if test="describe != null and describe != ''">
+            and `describe` = #{describe}
+        </if>
+        <if test="sorting != null">
+            and sorting = #{sorting}
+        </if>
+    </select>
+
+    <!-- byCategoryIdList-->
+    <select id="GiftGoods_byCategoryIdList" resultMap="get-GiftGoods-result">
+        select
+        <include refid="GiftGoods_Base_Column_List"/>
+        from
+        gift_gd_t_goods
+        where
+        is_deleted = 0
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="categoryId != null ">
+            and category_id = #{categoryId}
+        </if>
+        <if test="title != null ">
+            and title = #{title}
+        </if>
+        <if test="price != null">
+            and price = #{price}
+        </if>
+        <if test="startPrice != null and endPrice != null">
+            and price <![CDATA[>=]]> #{startPrice}
+            and price <![CDATA[<=]]> #{endPrice}
+        </if>
+        <if test="isLimitBuy != null">
+            and is_limit_buy = #{isLimitBuy}
+        </if>
+        <if test="limitNums != null">
+            and limit_nums = #{limitNums}
+        </if>
+        <if test="isShow != null and isShow != ''">
+            and is_show = #{isShow}
+        </if>
+        <if test="isChecked != null and isChecked != ''">
+            and is_checked = #{isChecked}
+        </if>
+        <if test="describe != null and describe != ''">
+            and `describe` = #{describe}
+        </if>
+        <if test="sorting != null">
+            and sorting = #{sorting}
+        </if>
+        <if test="idList != null">
+            and category_id IN
+            <foreach collection="idList" item = "item" open="(" separator="," close=")">
+            #{item}
+            </foreach>
+        </if>
+        ORDER BY sorting ASC
+        <if test="start != null and length != null">
+            limit  ${start},${length}
+        </if>
+    </select>
+
+    <!-- updateEntity -->
+	<update id="GiftGoods_update" parameterType="com.mocentre.gift.gd.model.GiftGoods">
+		update
+            gift_gd_t_goods
+		<set>
+            <if test="id != null">
+                 id = #{id},
+            </if>
+            <if test="categoryId != null ">
+                 category_id = #{categoryId},
+            </if>
+            <if test="price != null ">
+                 price = #{price},
+            </if>
+            <if test="isLimitBuy != null">
+                 is_limit_buy = #{isLimitBuy},
+            </if>
+            <if test="limitNums != null">
+                 limit_nums = #{limitNums},
+            </if>
+            <if test="isChecked != null and isChecked != ''">
+                 is_checked = #{isChecked},
+            </if>
+            <if test="isShow != null and isShow != ''">
+                is_show = #{isShow},
+            </if>
+            <if test="describe != null  and describe != ''">
+                 `describe` = #{describe},
+            </if>
+            <if test="deliveryType != null and deliveryType != ''">
+                delivery_type = #{deliveryType},
+            </if>
+            <if test="sorting != null">
+                 sorting = #{sorting},
+            </if>
+            <if test="imgListPagePc != null">
+                img_listPage_pc = #{imgListPagePc},
+            </if>
+            <if test="imgListPageMobile != null">
+                img_listPage_mobile = #{imgListPageMobile},
+            </if>
+            <if test="imgBanner != null">
+                img_banner = #{imgBanner},
+            </if>
+            <if test="details != null">
+                details = #{details},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+	</update>
+
+    <!-- saveEntity -->
+    <insert id="GiftGoods_insert" parameterType="com.mocentre.gift.gd.model.GiftGoods">
+        insert into gift_gd_t_goods
+        (category_id, title, price, is_limit_buy, limit_nums,
+        is_checked, is_show, `describe`, delivery_type, sorting,
+        img_listPage_pc,img_listPage_mobile,img_banner, details,
+        gmt_created, gmt_modified, is_deleted)
+        values
+        (
+        #{categoryId},
+        #{title},
+        #{price},
+        #{isLimitBuy},
+        #{limitNums},
+        #{isChecked},
+        #{isShow},
+        #{describe},
+        #{deliveryType},
+        #{sorting},
+        #{imgListPagePc},
+        #{imgListPageMobile},
+        #{imgBanner},
+        #{details},
+        now(),
+        now(),
+        0
+        )
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <!-- logicRemove -->
+    <update id="GiftGoods_logicDeleteByPrimaryKey" parameterType="long">
+        update
+            gift_gd_t_goods
+        <set>
+            gmt_modified = now(),
+            is_deleted = 1
+        </set>
+        where
+            is_deleted = 0
+            and id = #{id}
+    </update>
+
+</mapper>

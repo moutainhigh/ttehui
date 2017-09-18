@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.system.model.Rule">
+	<resultMap id="get-Rule-result" type="com.mocentre.tehui.system.model.Rule">
+		<id property="id" column="id" />
+		<!-- 父id-->
+    	<result property="pid" column="pid" />
+		<!-- 连接url-->
+    	<result property="url" column="url" />
+		<!-- 菜单名称-->
+    	<result property="title" column="title" />
+		<!-- 图标-->
+    	<result property="icon" column="icon" />
+		<!-- 类型-->
+    	<result property="type" column="type" />
+		<!-- 状态-->
+    	<result property="status" column="status" />
+		<!-- -->
+    	<result property="islink" column="islink" />
+		<!-- 排序-->
+    	<result property="orderby" column="orderby" />
+		<!-- 提示-->
+    	<result property="tips" column="tips" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 软删除标识 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+	
+	<sql id="Rule_Base_Column_List">
+		id, pid, url, title, icon, type,
+    	status, islink, orderby, tips,
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+	<select id="Rule_get"  resultMap="get-Rule-result">
+		select
+    		<include refid="Rule_Base_Column_List" />
+		from 
+			sys_t_rule
+		where 
+			id = #{id}
+			and is_deleted = 0
+    </select>
+	
+	<select id="Rule_list" resultMap="get-Rule-result" parameterType="java.util.HashMap">
+		select
+			<include refid="Rule_Base_Column_List" />
+		from 
+			sys_t_rule    
+		<where>
+			is_deleted = 0
+			<if test="ids != null ">
+				and id in
+				<foreach collection="ids" item="idList"  open="(" separator="," close=")">
+				 #{idList}
+				</foreach>
+			</if>
+			<if test="status != null ">
+				and status = #{status}
+			</if>
+			<if test="title != null and title != ''">
+				and title like concat('%', #{title},'%')  
+			</if>
+		</where>
+		order by orderby
+    </select>
+	
+   <insert id="Rule_insert" parameterType="com.mocentre.tehui.system.model.Rule" >
+      insert into sys_t_rule
+		(pid,url,title,icon,
+		type,status,islink,orderby,
+		tips,gmt_created,gmt_modified,is_deleted)
+		values
+		(#{pid},#{url},#{title},#{icon},
+		#{type},#{status},#{islink},#{orderby},
+		#{tips},now(),now(),0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="Rule_update" parameterType="com.mocentre.tehui.system.model.Rule">
+    	update sys_t_rule
+		set
+        	<if test="pid != null" >
+				pid = #{pid},
+           </if>
+		    <if test="url != null and url !=''" >
+				url = #{url},
+	           </if>
+		    <if test="title != null" >
+				title = #{title},
+	           </if>
+		    <if test="icon != null" >
+				icon = #{icon},
+	           </if>
+		    <if test="type != null" >
+				type = #{type},
+	           </if>
+		    <if test="status != null" >
+				status = #{status},
+	           </if>
+		    <if test="islink != null" >
+				islink = #{islink},
+	           </if>
+		    <if test="orderby != null" >
+				orderby = #{orderby},
+	           </if>
+		    <if test="tips != null" >
+				tips = #{tips},
+           </if>
+		gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="Rule_logicDelete" parameterType="com.mocentre.tehui.system.model.Rule">
+		update sys_t_rule
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+	<delete id="Rule_delete" parameterType="com.mocentre.tehui.system.model.Rule">
+    	delete from sys_t_rule
+		where 
+			id = #{id}
+  	</delete>
+  	
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.fee.model.CarryMode">
+    <resultMap id="get-CarryMode-result" type="com.mocentre.tehui.fee.model.CarryMode">
+        <id property="id" column="id"/>
+        <!-- 运费模板id -->
+        <result property="freightId" column="freight_id"/>
+        <!-- 运送方式(express.快递 ems.ems mail.平邮)-->
+        <result property="sendWay" column="send_way"/>
+        <!-- 运送地区（省-市-区）-->
+        <result property="arriveArea" column="arrive_area"/>
+        <!-- 首单位数量（依据运费模板表计价方式来选择）-->
+        <result property="firstNum" column="first_num"/>
+        <!-- 首费用(单位分)-->
+        <result property="firstFree" column="first_free"/>
+        <!-- 续单位数量（依据运费模板表计价方式来选择）-->
+        <result property="nextNum" column="next_num"/>
+        <!-- 续费用(单位分)-->
+        <result property="nextFree" column="next_free"/>
+        <!-- 是否默认-->
+        <result property="isDefault" column="is_default"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+        <!-- 是否被使用掉-->
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+    <sql id="CarryMode_Base_Column_List">
+        id, 
+        freight_id, 
+        send_way,
+        arrive_area,
+        first_num,
+        first_free,
+        next_num,
+        next_free, 
+        is_default, 
+        gmt_created,
+        gmt_modified,
+        is_deleted
+    </sql>
+    
+    <select id="CarryMode_getAll" resultMap="get-CarryMode-result">
+        select
+        	<include refid="CarryMode_Base_Column_List"/>
+        from
+       	 	fee_t_carry_mode
+        where
+        	freight_id = #{id} and is_deleted = 0
+    </select>
+    
+    <select id="CarryMode_byParam" resultMap="get-CarryMode-result">
+        select
+        	<include refid="CarryMode_Base_Column_List"/>
+        from
+       	 	fee_t_carry_mode
+        where
+        	is_deleted = 0
+        	<if test="freightId !=null">
+				and freight_id = #{freightId}
+			</if>
+			<if test="sendWay !=null and sendWay != ''">
+				and send_way = #{sendWay}
+			</if>
+    </select>
+	
+	<insert id="CarryMode_insert" parameterType="com.mocentre.tehui.fee.model.CarryMode">
+		insert into fee_t_carry_mode
+			(gmt_created,
+			gmt_modified,
+			freight_id, 
+	        send_way,
+	        arrive_area,
+	        first_num,
+	        first_free,
+	        next_num,
+	        next_free, 
+	        is_default)
+		values
+		<foreach collection="list" item="item" index="index" separator="," > 
+			(now(),
+			now(),
+			#{item.freightId},
+			#{item.sendWay},
+			#{item.arriveArea},
+			#{item.firstNum},
+			#{item.firstFree},
+			#{item.nextNum},
+			#{item.nextFree},
+			#{item.isDefault}
+			) 
+		</foreach>
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<delete id="CarryMode_delByCarryModeIdList" parameterType="java.util.List">
+		delete from fee_t_carry_mode
+		where 
+			freight_id in 
+		<foreach collection="list" item = "item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+	</delete>
+	
+	<delete id="CarryMode_deleteByPrimaryKey" parameterType="com.mocentre.tehui.fee.model.CarryMode">
+		delete from fee_t_carry_mode
+		where 
+			freight_id = #{freightId}
+	</delete>
+	
+</mapper>

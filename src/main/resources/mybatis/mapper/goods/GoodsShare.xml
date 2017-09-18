@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.GoodsShare">
+    <resultMap id="get-GoodsShare-result" type="com.mocentre.tehui.goods.model.GoodsShare">
+        <id property="id" column="id"/>
+        <!-- 商品id-->
+        <result property="goodsId" column="goods_id"/>
+        <!-- 分享title-->
+        <result property="title" column="title"/>
+        <!-- 分享图片-->
+        <result property="sharePic" column="share_pic"/>
+        <!-- 分享描述-->
+        <result property="description" column="description"/>
+        <!-- 创建时间 -->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间 -->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="GoodsShare_Base_Column_List">
+        id, goods_id, title, share_pic, description
+    </sql>
+
+    <select id="GoodsShare_get" resultMap="get-GoodsShare-result">
+        select
+            <include refid="GoodsShare_Base_Column_List"/>
+        from
+            gd_t_goods_share
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="GoodsShare_list" resultMap="get-GoodsShare-result">
+        select
+            <include refid="GoodsShare_Base_Column_List"/>
+        from
+            gd_t_goods_share
+        <where>
+	        <if test="goodsId != null">
+	            and goods_id = #{goodsId}
+	        </if>
+	        <if test="id != null">
+	            and id = #{id}
+	        </if>
+        	and is_deleted = 0
+        </where>
+    </select>
+
+	<update id="GoodsShare_update" parameterType="com.mocentre.tehui.goods.model.GoodsShare">
+		update 
+			 gd_t_goods_share
+		<set>
+            <if test="goodsId != null">
+                goods_id = #{goodsId},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="sharePic != null">
+                share_pic = #{sharePic},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+	</update>
+
+    <insert id="GoodsShare_insert" parameterType="com.mocentre.tehui.goods.model.GoodsShare">
+        insert into gd_t_goods_share
+        (goods_id, title, share_pic, description, 
+         is_deleted, gmt_created, gmt_modified)
+        values
+        (#{goodsId}, #{title}, #{sharePic}, #{description},
+         0, now(), now() )
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <delete id="GoodsShare_del_id" parameterType="long">
+        delete from gd_t_goods_share where id = #{id}
+    </delete>
+
+    <delete id="GoodsShare_del_goodsId" parameterType="long">
+        delete from gd_t_goods_share where goods_id = #{goodsId}
+    </delete>
+
+</mapper>

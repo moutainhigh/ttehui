@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.PayConfig">
+	<resultMap id="get-PayConfig-result" type="com.mocentre.tehui.buy.model.PayConfig">
+		<id property="id" column="id" />
+    	<result property="gmtCreated" column="gmt_created" />
+    	<result property="gmtModified" column="gmt_modified" />
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 商家商户号（mch_id）-->
+    	<result property="partner" column="partner" />
+		<!-- 商户名称-->
+    	<result property="partnerName" column="partner_name" />
+		<!-- 收款账号-->
+    	<result property="sellerId" column="seller_id" />
+		<!-- 私钥路径(支付宝)-->
+    	<result property="privateKey" column="private_key" />
+		<!-- 公钥路径(支付宝)-->
+    	<result property="publicKey" column="public_key" />
+		<!-- 签名方式(支付宝默认RSA)-->
+    	<result property="signType" column="sign_type" />
+		<!-- 编码方式，默认utf-8-->
+    	<result property="charset" column="charset" />
+		<!-- ca证书路径-->
+    	<result property="cacertPath" column="cacert_path" />
+		<!-- 访问方式(http)-->
+    	<result property="transport" column="transport" />
+		<!-- 支付类型(alipay,wxpay,kcode)-->
+    	<result property="payType" column="pay_type" />
+		<!-- 通知方式-->
+    	<result property="notifyType" column="notify_type" />
+		<!-- appid-->
+    	<result property="appid" column="appid" />
+		<!-- appid对应的接口密钥-->
+    	<result property="appsecret" column="appsecret" />
+		<!-- 是否开启(0,不开启)-->
+    	<result property="open" column="open" />
+		<!-- 签名密钥(微信)-->
+    	<result property="signKey" column="sign_key" />
+		<!-- 扩展配置项(json存储)-->
+    	<result property="extKey" column="ext_key" />
+	</resultMap>
+	
+	<sql id="PayConfig_Base_Column_List">
+		id, gmt_created, gmt_modified,
+    	is_deleted, partner, partner_name, seller_id, private_key,
+    	public_key, sign_type, charset, cacert_path, transport,
+    	pay_type, notify_type, appid, appsecret, open,
+    	sign_key, ext_key
+	</sql>
+	
+	<select id="PayConfig_get"  resultMap="get-PayConfig-result">
+		select
+    		<include refid="PayConfig_Base_Column_List" />
+	 	from 
+			buy_t_pay_config
+		where 
+			id = #{id}
+    </select>
+	
+	<select id="PayConfig_list"  resultMap="get-PayConfig-result">
+		select
+    		<include refid="PayConfig_Base_Column_List" />
+	 	from 
+			buy_t_pay_config    
+		where 
+			is_deleted = 0
+			<if test="open != null" >
+				and open = #{open}
+            </if>
+    </select>
+	
+   <insert id="PayConfig_insert" parameterType="com.mocentre.tehui.buy.model.PayConfig" >
+      insert into buy_t_pay_config
+			(gmt_created, gmt_modified, 0,
+			partner, partner_name, seller_id, private_key, public_key,
+			sign_type, charset, cacert_path, transport, pay_type,
+			notify_type, appid, appsecret, open, sign_key,ext_key)
+		values
+			(#{gmtCreated},#{gmtModified},#{isDeleted},
+			#{partner}, #{partnerName}, #{sellerId}, #{privateKey}, #{publicKey},
+			#{signType}, #{charset}, #{cacertPath}, #{transport}, {payType},
+			#{notifyType}, #{appid}, #{appsecret}, #{open}, #{signKey}, #{extKey})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="PayConfig_update" parameterType="com.mocentre.tehui.buy.model.PayConfig">
+    	update buy_t_pay_config
+			set
+          		<if test="partner != null" >
+					partner = #{partner},
+	            </if>
+				<if test="partnerName != null" >
+					partner_name = #{partnerName},
+	            </if>
+				<if test="sellerId != null" >
+					seller_id = #{sellerId},
+	            </if>
+				<if test="privateKey != null" >
+					private_key = #{privateKey},
+	            </if>
+				<if test="publicKey != null" >
+					public_key = #{publicKey},
+	            </if>
+				<if test="signType != null" >
+					sign_type = #{signType},
+	            </if>
+				<if test="charset != null" >
+					charset = #{charset},
+	            </if>
+				<if test="cacertPath != null" >
+					cacert_path = #{cacertPath},
+	            </if>
+				<if test="transport != null" >
+					transport = #{transport},
+	            </if>
+				<if test="payType != null" >
+					pay_type = #{payType},
+	            </if>
+				<if test="notifyType != null" >
+					notify_type = #{notifyType},
+	            </if>
+				<if test="appid != null" >
+					appid = #{appid},
+	            </if>
+				<if test="appsecret != null" >
+					appsecret = #{appsecret},
+	            </if>
+				<if test="open != null" >
+					open = #{open},
+	            </if>
+				<if test="signKey != null" >
+					sign_key = #{signKey},
+	            </if>
+				<if test="extKey != null" >
+					ext_key = #{extKey},
+	            </if>
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="PayConfig_logicDelete" parameterType="com.mocentre.tehui.buy.model.PayConfig">
+		update buy_t_pay_config
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+	<delete id="PayConfig_delete" parameterType="com.mocentre.tehui.buy.model.PayConfig">
+    	delete from buy_t_pay_config
+		where 
+			id = #{id}
+  	</delete>
+  	
+</mapper>

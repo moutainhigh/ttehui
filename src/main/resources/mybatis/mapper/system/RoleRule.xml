@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.system.model.RoleRule">
+	<resultMap id="get-RoleRule-result" type="com.mocentre.tehui.system.model.RoleRule">
+		<id property="id" column="id" />
+		<!-- 角色id-->
+    	<result property="roleId" column="role_id" />
+		<!-- 操作id-->
+    	<result property="ruleId" column="rule_id" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 更新时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除-->
+    	<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+	
+	<sql id="RoleRule_Base_Column_List">
+		id, role_id, rule_id,
+    	gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+	<select id="RoleRule_get" resultMap="get-RoleRule-result">
+		 select
+    		<include refid="RoleRule_Base_Column_List" />
+	 	 from 
+			sys_r_role_rule
+		 where 
+			id = #{id}
+    </select>
+	
+	<select id="RoleRule_list" resultMap="get-RoleRule-result">
+		 select
+			<include refid="RoleRule_Base_Column_List" />
+	 	 from 
+			sys_r_role_rule    
+		<where>
+			is_deleted = 0
+			<if test="roleList != null">
+				and role_id in 
+				<foreach collection="roleList" item="roleList"  open="(" separator="," close=")">    
+				 #{roleList}
+				</foreach>
+			</if>
+		</where>
+    </select>
+	
+   <insert id="RoleRule_insert" parameterType="com.mocentre.tehui.system.model.RoleRule" >
+      insert into sys_r_role_rule
+		(role_id,rule_id,
+		gmt_created,gmt_modified,is_deleted)
+		values
+		(#{roleId},#{ruleId},
+		now(),now(),0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <insert id="RoleRule_insert_batch" parameterType="java.util.List" >
+      insert into sys_r_role_rule
+		(role_id,rule_id,
+		gmt_created,gmt_modified,is_deleted)
+		values
+		<foreach collection ="list" item ="item" index ="index" separator =","> 
+		(#{item.roleId},#{item.ruleId},
+		now(),now(),0)
+		</foreach>
+    </insert>
+    
+    <update id="RoleRule_update" parameterType="com.mocentre.tehui.system.model.RoleRule">
+    	update sys_r_role_rule
+			set
+          		role_id = #{roleId},
+          		rule_id = #{ruleId},
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="RoleRule_logicDelete" parameterType="com.mocentre.tehui.system.model.RoleRule">
+		update sys_r_role_rule
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+	<delete id="RoleRule_delete" parameterType="com.mocentre.tehui.system.model.RoleRule">
+    	delete from sys_r_role_rule
+		where 
+			id = #{id}
+  	</delete>
+  	
+  	<delete id="RoleRule_delete_role" parameterType="com.mocentre.tehui.system.model.RoleRule">
+    	delete from sys_r_role_rule
+		where 
+			role_id = #{roleId}
+  	</delete>
+  	
+</mapper>

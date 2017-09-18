@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.Goods">
+    <resultMap id="get-Goods-result" type="com.mocentre.tehui.goods.model.Goods">
+        <id property="id" column="id"/>
+        <!-- 商品title-->
+        <result property="title" column="title"/>
+        <!-- 商铺id-->
+        <result property="shopId" column="shop_id"/>
+        <!-- 商铺id-->
+        <result property="categoryId" column="category_id"/>
+        <!-- 原价-->
+        <result property="oldPrice" column="old_price"/>
+        <!-- 现价-->
+        <result property="sellPrice" column="sell_price"/>
+        <!-- 最低原价-->
+        <result property="oldLowPrice" column="old_low_price"/>
+        <!-- 最低现价-->
+        <result property="sellLowPrice" column="sell_low_price"/>
+        <!-- 是否限制购买数-->
+        <result property="isLimitBuy" column="is_limit_buy"/>
+        <!-- 做大购买数-->
+        <result property="limitNums" column="limit_nums"/>
+        <!-- 商品积分-->
+        <result property="score" column="score"/>
+        <!-- 是否上架-->
+        <result property="isShow" column="is_show"/>
+        <!-- 是否通过审核-->
+        <result property="isChecked" column="is_checked"/>
+        <!-- 上架时间-->
+        <result property="onShelfTime" column="on_shelf_time"/>
+        <!--天猫价(展示用)-->
+        <result property="tmPrice" column="tm_price"/>
+        <!--京东价(展示用)-->
+        <result property="jdPrice" column="jd_price"/>
+        <!--京东价(展示用)-->
+        <result property="describe" column="describe"/>
+        <!-- 在店铺中的排序-->
+        <result property="shopSorting" column="shop_sorting"/>
+        <!-- 列表页图片-->
+        <result property="imgListPage" column="img_listPage"/>
+        <!-- 详细页顶部banner-->
+        <result property="imgBanner" column="img_banner"/>
+        <!-- 购物车图片 -->
+        <result property="imgCart" column="img_cart"/>
+        <!-- 商品详情页-->
+        <result property="details" column="details"/>
+        <!-- 总库存量-->
+        <result property="storeTotal" column="store_total"/>
+        <!-- 总销售量-->
+        <result property="saleTotal" column="sale_total"/>
+        <!-- 商品规格（住：属性和属性值的json串）-->
+        <result property="standard" column="standard"/>
+        <!-- 拥有的规格json串-->
+        <result property="holdStandard" column="hold_standard"/>
+        <!-- 删除状态-->
+        <result property="isDeleted" column="is_deleted"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+    
+    <sql id="Goods_Base_Column_List">
+        id, title, shop_id, category_id, old_price, old_low_price, sell_low_price,
+        sell_price, is_limit_buy,limit_nums,score,is_show, is_checked,
+        on_shelf_time,tm_price, jd_price,`describe`, shop_sorting,img_listPage, img_banner,
+        img_cart, details, store_total, sale_total, hold_standard,
+        standard,is_coupon,coupon_num, gmt_created,gmt_modified
+    </sql>
+
+    <select id="Goods_get" resultMap="get-Goods-result">
+        select
+        <include refid="Goods_Base_Column_List"/>
+        from
+        	gd_t_goods
+        where
+        		is_deleted = 0
+        	and id = #{id} 
+        	and is_deleted = 0
+    </select>
+
+    <select id="Goods_list" resultMap="get-Goods-result">
+        select
+            <include refid="Goods_Base_Column_List"/>
+        from
+            gd_t_goods
+        where
+	            is_deleted = 0
+	        <if test="id != null">
+	            and id = #{id}
+	        </if>
+	        <if test="title != null and title != ''">
+	            and title like concat('%', #{title},'%') 
+	        </if>
+	        <if test="shopId != null">
+	            and shop_id = #{shopId}
+	        </if>
+	        <if test="categoryId != null">
+	            and category_id = #{categoryId}
+	        </if>
+	        <if test="isLimitBuy != null and isLimitBuy != ''">
+	            and is_limit_buy = #{isLimitBuy}
+	        </if>
+	        <if test="limitNums != null">
+	            and limit_nums = #{limitNums}
+	        </if>
+	        <if test="isShow != null and isShow != ''">
+	            and is_show = #{isShow}
+	        </if>
+	        <if test="isChecked != null and isChecked != ''">
+	            and is_checked = #{isChecked}
+	        </if>
+	        <if test="storeTotal != null">
+	            and store_total = #{storeTotal}
+	        </if>
+	        <if test="saleTotal != null">
+	            and sale_total = #{saleTotal}
+	        </if>
+    </select>
+
+    <select id="Goods_Top_List" resultMap="get-Goods-result">
+        select
+        	<include refid="Goods_Base_Column_List"/>
+        from
+        	gd_t_goods
+        where
+	        	is_deleted = 0
+	        <if test="title != null">
+	            and title  like CONCAT('%',#{title},'%')
+	        </if>
+	        <if test="shopId != null">
+	            and shop_id = #{shopId}
+	        </if>
+	        <if test="categoryId != null">
+	            and category_id = #{categoryId}
+	        </if>
+	        <if test="describe != null and describe != ''">
+	            and describe like CONCAT('%',#{describe},'%')
+	        </if>
+	        <if test="isShow != null and isShow != ''">
+	            and is_show = #{isShow}
+	        </if>
+	        <if test="isChecked != null and isChecked != ''">
+	            and is_checked = #{isChecked}
+	        </if>
+	        ORDER BY
+	        <if test="titleOrder != null and titleOrder != ''">
+	            title ${titleOrder},
+	        </if>
+	        <if test="sellPriceOrder != null and sellPriceOrder != ''">
+	            sell_price ${sellPriceOrder},
+	        </if>
+	        <if test="scoreOrder != null and scoreOrder != ''">
+	            score ${scoreOrder},
+	        </if>
+	        <if test="shopSortingOrder != null and shopSortingOrder != ''">
+	            shop_sorting ${shopSortingOrder},
+	        </if>
+	        <if test="storeTotalOrder != null and storeTotalOrder != ''">
+	            store_total ${storeTotalOrder},
+	        </if>
+	        <if test="saleTotalOrder != null and saleTotalOrder != ''">
+	            sale_total ${saleTotalOrder},
+	        </if>
+	        <if test="onShelfTimeOrder != null and onShelfTimeOrder != ''">
+	            on_shelf_time ${onShelfTimeOrder},
+	        </if>
+	        id
+	        <if test="limit != null and limit !=''and offset != null and offset !=''">
+	            limit  ${limit},${offset}
+	        </if>
+	        <if test="offset != null and offset !=''">
+	            limit  0,${offset}
+	        </if>
+    </select>
+
+    <update id="Goods_update" parameterType="com.mocentre.tehui.goods.model.Goods">
+        update gd_t_goods
+        <set>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="describe != null and describe != ''">
+             	`describe` = #{describe},
+        	</if>
+            <if test="categoryId != null">
+                category_id = #{categoryId},
+            </if>
+            <if test="oldPrice != null and oldPrice != ''">
+                old_price = #{oldPrice},
+            </if>
+            <if test="sellPrice != null and sellPrice != ''">
+                sell_price = #{sellPrice},
+            </if>
+            <if test="oldLowPrice != null">
+                old_low_price = #{oldLowPrice},
+            </if>
+            <if test="sellLowPrice != null">
+                sell_low_price = #{sellLowPrice},
+            </if>
+            <if test="tmPrice != null and tmPrice != ''">
+                tm_price = #{tmPrice},
+            </if>
+            <if test="jdPrice != null and jdPrice != ''">
+                jd_price = #{jdPrice},
+            </if>
+            <if test="isLimitBuy != null and isLimitBuy != ''">
+                is_limit_buy = #{isLimitBuy},
+            </if>
+            <if test="limitNums != null">
+                limit_nums = #{limitNums},
+            </if>
+            <if test="isShow != null and isShow != ''">
+                is_show = #{isShow},
+                on_shelf_time = now(),
+            </if>
+            <if test="isChecked != null and isChecked != ''">
+                is_checked = #{isChecked},
+            </if>
+            <if test="shopSorting != null and shopSorting != ''">
+                shop_sorting = #{shopSorting},
+            </if>
+            <if test="imgListPage != null and imgListPage != ''">
+                img_listPage = #{imgListPage},
+            </if>
+            <if test="imgCart != null and imgCart != ''">
+                img_cart = #{imgCart},
+            </if>
+            <if test="imgBanner != null and imgBanner != ''">
+                img_banner = #{imgBanner},
+            </if>
+            <if test="details != null and details != ''">
+                details = #{details},
+            </if>
+            <if test="storeTotal != null">
+                store_total = #{storeTotal},
+            </if>
+            <if test="saleTotal != null">
+                sale_total = #{saleTotal},
+            </if>
+            <if test="standard != null and standard != ''">
+                standard = #{standard},
+            </if>
+            <if test="holdStandard != null and holdStandard != ''">
+                hold_standard = #{holdStandard},
+            </if>
+            gmt_modified = now()
+        </set>
+        where
+            is_deleted = 0
+            and id = #{id}
+    </update>
+
+    <insert id="Goods_insert" parameterType="com.mocentre.tehui.goods.model.Goods">
+        insert into gd_t_goods
+            (title,shop_id,category_id,old_price,sell_price,tm_price,jd_price,
+             is_limit_buy,limit_nums,score,is_show,is_checked,on_shelf_time,`describe`,
+             shop_sorting,img_listPage,img_banner,img_cart,old_low_price,sell_low_price,
+             details,store_total,sale_total,standard,is_coupon,coupon_num,hold_standard,
+             is_deleted,gmt_created,gmt_modified)
+        values
+             (#{title},#{shopId},#{categoryId},#{oldPrice},#{sellPrice},#{tmPrice},#{jdPrice},
+              #{isLimitBuy},#{limitNums},#{score},#{isShow},#{isChecked},#{onShelfTime},#{describe},
+              #{shopSorting},#{imgListPage},#{imgBanner},#{imgCart},#{oldLowPrice},#{sellLowPrice},
+              #{details},#{storeTotal},#{saleTotal},#{standard},#{isCoupon},#{couponNum},#{holdStandard},
+              0,now(),now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <update id="Goods_logicDelete" parameterType="com.mocentre.tehui.goods.model.Goods">
+        update
+            gd_t_goods
+        set
+            is_deleted = 1,
+            gmt_modified = now()
+        where
+          		id = #{id}
+			and shop_id = #{shopId}
+    </update>
+
+</mapper>

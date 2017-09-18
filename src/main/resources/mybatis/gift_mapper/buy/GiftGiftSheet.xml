@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.gift.buy.model.GiftGiftSheet">
+	<resultMap id="get-GiftGiftSheet-result" type="com.mocentre.gift.buy.model.GiftGiftSheet">
+		<id property="id" column="id" />
+		<!-- 用户id-->
+		<result property="customerId" column="customer_id" />
+		<!-- 商品id-->
+		<result property="goodsId" column="goods_id" />
+		<!-- 商品名称-->
+		<result property="goodsName" column="goods_name" />
+		<!-- 商品logo地址-->
+		<result property="goodsImg" column="goods_img" />
+		<!-- 商品原价-->
+		<result property="price" column="price" />
+		<!-- 购买数量-->
+		<result property="num" column="num" />
+		<!-- 限制购买的数量-->
+		<result property="limitNum" column="limit_num" />
+		<!-- 删除-->
+		<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+		<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+
+	<sql id="GiftGiftSheet_Base_Column_List">
+		id, customer_id, goods_id, goods_name, goods_img, price, num,limit_num,
+		is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<insert id="GiftGiftSheet_insert" parameterType="com.mocentre.gift.buy.model.GiftGiftSheet" >
+		insert into gift_buy_t_gift_sheet(
+		customer_id, goods_id, goods_name, goods_img, price, num,limit_num,
+		is_deleted, gmt_created, gmt_modified)
+		values(
+		#{customerId},#{goodsId},#{goodsName},#{goodsImg},#{price},#{num},#{limitNum},
+		0, now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="GiftGiftSheet_logic_delete" parameterType="java.util.List">
+		update gift_buy_t_gift_sheet
+		set is_deleted = 1,gmt_modified = now()
+		where
+		id in
+		<foreach collection="idList" item = "item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		and customer_id = #{customerId}
+	</update>
+
+	<update id="GiftGiftSheet_update" parameterType="com.mocentre.gift.buy.model.GiftGiftSheet">
+		update gift_buy_t_gift_sheet
+		set
+		<if test="num != null">
+			num = #{num},
+		</if>
+		gmt_modified = now()
+		where
+		id = #{id}
+	</update>
+
+	<select id="GiftGiftSheet_list"  resultMap="get-GiftGiftSheet-result">
+		select
+		<include refid="GiftGiftSheet_Base_Column_List" />
+		from
+		gift_buy_t_gift_sheet
+		where
+		is_deleted = 0
+		<if test="id!=null">
+			and id = #{id}
+		</if>
+		<if test="customerId!=null">
+			and customer_id = #{customerId}
+		</if>
+		<if test="goodsId!=null">
+			and goods_id = #{goodsId}
+		</if>
+	</select>
+
+	<select id="GiftGiftSheet_get"  resultMap="get-GiftGiftSheet-result">
+		select
+		<include refid="GiftGiftSheet_Base_Column_List" />
+		from
+		gift_buy_t_gift_sheet
+		where
+		id = #{id}
+		and is_deleted = 0
+	</select>
+
+	<select id="GiftGiftSheet_getList"  resultMap="get-GiftGiftSheet-result">
+		select
+		<include refid="GiftGiftSheet_Base_Column_List" />
+		from
+		gift_buy_t_gift_sheet
+		where
+		id in
+		<foreach collection="idList" item = "item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		and customer_id = #{customerId}
+		and is_deleted = 1
+	</select>
+</mapper>

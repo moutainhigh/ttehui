@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.Supplier">
+	<resultMap id="get-Supplier-result" type="com.mocentre.tehui.goods.model.Supplier">
+		<id property="id" column="id" />
+		<!-- 供货商名称 -->
+		<result property="title" column="title" />
+		<!-- 负责人 -->
+		<result property="name" column="name" />
+		<!-- 产品数量 -->
+		<result property="goodsCount" column="goods_count" />
+		<!-- 账期（预付，月结，周结） -->
+		<result property="period" column="period" />
+		<!-- 客服电话 -->
+		<result property="telephone" column="telephone" />
+		<!-- 邮箱 -->
+		<result property="mail" column="mail" />
+		<!-- 备注 -->
+		<result property="note" column="note" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="Supplier_Base_Column_List">
+		id, title, name, goods_count, period,
+		telephone, mail, note,
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<select id="Supplier_get" resultMap="get-Supplier-result">
+		select
+			<include refid="Supplier_Base_Column_List" />
+		from
+			gd_t_supplier
+		where
+			is_deleted = 0 and id = #{id}
+	</select>
+	
+	<select id="Supplier_list" resultMap="get-Supplier-result">
+		select
+			<include refid="Supplier_Base_Column_List" />
+		from
+			gd_t_supplier
+		<where>
+			<if test="title != null and title !=''">
+				and title = #{title}
+			</if>
+        	<if test="name != null and name !=''">
+            	and name = #{name}
+        	</if>
+        	<if test="goods_count != null">
+            	and goods_count = #{goodsCount}
+        	</if>
+        	<if test="period != null and period !=''">
+           		and period = #{period}
+        	</if>
+        	<if test="telephone != null and telephone !=''">
+           		and telephone = #{telephone}
+        	</if>
+        	and	is_deleted= 0 
+		</where>
+		<if test="column!=null and column!=''">
+			order by
+			<choose>
+				<when test="column=='goodsCount'">
+					goods_count
+				</when>
+				<when test="column=='title'">
+					title
+				</when>
+				<when test="column=='period'">
+					period
+				</when>
+			<otherwise>
+				gmt_created
+			</otherwise>
+			</choose>
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+	</select>
+
+	<insert id="Supplier_insert" parameterType="com.mocentre.tehui.goods.model.Supplier">
+		insert into gd_t_supplier
+		(title, name, goods_count, period,
+		 telephone, mail, note,
+		 gmt_created, gmt_modified, is_deleted)
+		values
+		(#{title}, #{name}, #{goodsCount}, #{period}, #{telephone},
+		 #{mail}, #{note},
+		 now(), now(), 0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="Supplier_update" parameterType="com.mocentre.tehui.goods.model.Supplier">
+		update
+			gd_t_supplier
+		<set>
+			<if test="title != null and title !=''">
+				 title = #{title},
+			</if>
+			<if test="name != null and name !=''">
+			     name = #{name},
+			</if>
+			<if test="goodsCount != null">
+				 goods_count = #{goodsCount},
+			</if>
+			<if test="period != null and period !=''">
+				 period = #{period},
+			</if>
+			<if test="mail != null and mail !=''">
+				mail = #{mail},
+			</if>
+			<if test="note != null and note !=''">
+				note = #{note},
+			</if>
+			<if test="telephone != null and telephone !=''">
+				 telephone = #{telephone},
+			</if>
+			gmt_modified = now()
+		</set>
+		where 
+				is_deleted = 0 
+			and id = #{id}
+	</update>
+
+	<update id="Supplier_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update 
+			gd_t_supplier
+		set
+			is_deleted = 1
+		where id = #{id}
+	</update>
+
+</mapper>

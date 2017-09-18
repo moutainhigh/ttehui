@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+       <context:property-placeholder
+               ignore-unresolvable="true" location="classpath:system.properties" />
+
+       <bean id="checkLoginService" class="com.mocentre.tehui.core.service.support.CheckLoginService">
+              <property name="domain" value="${domain}"></property>
+              <property name="publicKey" value="${publicKey}"></property>
+              <property name="secretKey" value="${secretKey}"></property>
+              <property name="debugSession" value="${debugSession}"></property>
+       </bean>
+
+       <bean id="userManageService" class="com.mocentre.tehui.system.provider.UserManageServiceImpl" />
+       <bean id="loginManageService" class="com.mocentre.tehui.system.provider.LoginManageServiceImpl" />
+       <bean id="ruleManageService" class="com.mocentre.tehui.system.provider.RuleManageServiceImpl" />
+       <bean id="roleManageService" class="com.mocentre.tehui.system.provider.RoleManageServiceImpl" />
+       <bean id="areasManageService" class="com.mocentre.tehui.system.provider.AreasManageServiceImpl" />
+
+       <!-- 订单管理  -->
+       <bean id="orderManageService" class="com.mocentre.tehui.buy.provider.OrderManageServiceImpl" />
+       <bean id="shopCartManageService" class="com.mocentre.tehui.buy.provider.ShopCartManageServiceImpl" />
+
+       <!-- 邮费模板模块 -->
+       <bean id="freightMouldManageService" class="com.mocentre.tehui.fee.provider.FreightMouldManageServiceImpl" />
+       <bean id="carryModeManageService" class="com.mocentre.tehui.fee.provider.CarryModeManageServiceImpl" />
+       <bean id="postageConditionManageService" class="com.mocentre.tehui.fee.provider.PostageConditionManageServiceImpl" />
+       <!-- 店铺模块 -->
+       <bean id="shopManageService" class="com.mocentre.tehui.shop.provider.ShopManageServiceImpl" />
+       <!-- 发现页 -->
+       <bean id="discoverManageService" class="com.mocentre.tehui.goods.provider.DiscoverManageServiceImpl" />
+       <!--商品-->
+       <bean id="attributeManageService" class="com.mocentre.tehui.goods.provider.AttributeManageServiceImpl" />
+       <bean id="channelManageService" class="com.mocentre.tehui.goods.provider.ChannelManageServiceImpl" />
+       <bean id="categoryManageService" class="com.mocentre.tehui.goods.provider.CategoryManageServiceImpl" />
+       <bean id="goodsManageService" class="com.mocentre.tehui.goods.provider.GoodsManageServiceImpl" />
+       <bean id="couponManageService" class="com.mocentre.tehui.goods.provider.CouponManageServiceImpl" />
+       <bean id="storeManageService" class="com.mocentre.tehui.goods.provider.StoreManageServiceImpl" />
+       <!--买家用户-->
+       <bean id="customerInfoManageService" class="com.mocentre.tehui.ps.provider.CustomerInfoManageServiceImpl" />
+       <!-- 专题管理 -->
+       <bean id="subjectManageService" class="com.mocentre.tehui.sub.provider.SubjectManageServiceImpl" />
+</beans>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.gift.buy.model.GiftOrderDetail">
+	<resultMap id="get-GiftOrderDetail-result" type="com.mocentre.gift.buy.model.GiftOrderDetail">
+		<id property="id" column="id" />
+    	<!-- 订单id-->
+    	<result property="orderId" column="order_id" />
+		<!-- 订单编号-->
+    	<result property="orderNum" column="order_num" />
+    	<!-- 订单详情编号-->
+    	<result property="orderDetailNum" column="order_detail_num" />
+		<!-- 商品id-->
+    	<result property="goodsId" column="goods_id" />
+		<!-- 商品名称-->
+    	<result property="goodsName" column="goods_name" />
+		<!-- 商品缩略图-->
+    	<result property="goodsImg" column="goods_img" />
+		<!-- 商品单价价-->
+    	<result property="goodsPrice" column="goods_price" />
+		<!-- 商品数量-->
+    	<result property="goodsAmount" column="goods_amount" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="GiftOrderDetail_Base_Column_List">
+		id, order_id,order_num, order_detail_num, goods_id, goods_name, goods_img, goods_price, goods_amount,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="GiftOrderDetail_list" resultMap="get-GiftOrderDetail-result">
+		select
+			<include refid="GiftOrderDetail_Base_Column_List" />
+		from
+		gift_buy_t_order_detail
+		where
+		    is_deleted = 0
+		 	<if test="orderNum!=null and orderNum!=''">
+			and order_num=#{orderNum}
+		 	</if>
+    </select>
+
+
+   <insert id="GiftOrderDetail_insert_batch" parameterType="java.util.List">
+      insert into gift_buy_t_order_detail(
+	   order_id,order_num, order_detail_num, goods_id, goods_name, goods_img, goods_price, goods_amount,
+	   is_deleted, gmt_created, gmt_modified)
+		values
+		<foreach collection ="list" item ="item" index ="index" separator =",">
+		(#{item.orderId},#{item.orderNum}, #{item.orderDetailNum}, #{item.goodsId}, #{item.goodsName}, #{item.goodsImg},
+		 #{item.goodsPrice}, #{item.goodsAmount},  0, now(),now())
+		</foreach>
+    </insert>
+
+	<update id="GiftOrderDetail_logicDelete" parameterType="com.mocentre.gift.buy.model.GiftOrderDetail">
+		update gift_buy_t_order_detail
+		set
+		is_deleted=1 ,gmt_modified = now()
+		<where>
+			is_deleted = 0
+			<if test="id!=null and id!=''">
+				and id = #{id}
+			</if>
+			<if test="orderNum!=null and orderNum != ''">
+				and order_num = #{orderNum}
+			</if>
+			<if test="orderId != null">
+				and order_id = #{orderId}
+			</if>
+		</where>
+	</update>
+
+	<update id="GiftOrderDetail_update" parameterType="com.mocentre.gift.buy.model.GiftOrderDetail">
+		update gift_buy_t_order_detail
+		set
+		<if test="goodsPrice!=null and goodsPrice!=''">
+			goods_price = #{goodsPrice},
+		</if>
+		<if test="goodsAmount!=null and goodsAmount != ''">
+			goods_amount = #{goodsAmount},
+		</if>
+		gmt_modified = now()
+		<where>
+			<if test="id!=null and id!=''">
+				and id = #{id}
+			</if>
+			<if test="orderNum!=null and orderNum != ''">
+				and order_num = #{orderNum}
+			</if>
+			<if test="orderId != null">
+				and order_id = #{orderId}
+			</if>
+		</where>
+	</update>
+
+</mapper>

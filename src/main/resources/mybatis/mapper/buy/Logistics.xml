@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.Logistics">
+	<resultMap id="get-Logistics-result" type="com.mocentre.tehui.buy.model.Logistics">
+		<id property="id" column="id" />
+		<!-- 编码-->
+    	<result property="code" column="code" />
+		<!-- 名称-->
+    	<result property="name" column="name" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="Logistics_Base_Column_List">
+		id, code, name,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="Logistics_get" resultMap="get-Logistics-result">
+		select
+    		<include refid="Logistics_Base_Column_List" />
+	 	from 
+			buy_t_logistics
+		where 
+			id = #{id}
+    </select>
+
+	<select id="Logistics_getByCode" resultMap="get-Logistics-result">
+		select
+		<include refid="Logistics_Base_Column_List" />
+		from
+		buy_t_logistics
+		where
+		id = #{id}
+	</select>
+
+	<select id="Logistics_getByName" resultMap="get-Logistics-result">
+		select
+		<include refid="Logistics_Base_Column_List" />
+		from
+		buy_t_logistics
+		where
+		id = #{id}
+	</select>
+	
+	<select id="Logistics_list" resultMap="get-Logistics-result">
+		select
+			<include refid="Logistics_Base_Column_List" />
+	 	from 
+			buy_t_logistics    
+		where
+			is_deleted = 0
+    </select>
+	
+   <insert id="Logistics_insert" parameterType="com.mocentre.tehui.buy.model.Logistics" >
+      insert into buy_t_logistics
+      (
+		code, name,
+		is_deleted, gmt_created, gmt_modified
+	  )
+	  values
+	  (
+		#{code}, #{name},
+		0, #{gmtCreated}, #{gmtModified}
+	  )
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="Logistics_update" parameterType="com.mocentre.tehui.buy.model.Logistics">
+    	update buy_t_logistics
+			set
+          	<if test="code != null">
+				code = #{code},
+            </if>
+			<if test="name != null">
+				name = #{name},
+            </if>
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="Logistics_logicDelete" parameterType="com.mocentre.tehui.buy.model.Logistics">
+		update 
+			buy_t_logistics
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.td.model.MemberAccount">
+    <resultMap id="get-MemberAccount-result" type="com.mocentre.tehui.td.model.MemberAccount">
+        <id property="id" column="id"/>
+        <result property="appKey" column="app_key"/>
+        <result property="appSecret" column="app_secret"/>
+        <result property="returnUrl" column="return_url"/>
+        <result property="isDeny" column="is_deny"/>
+        <result property="remark" column="remark"/>
+        <result property="keymark" column="keymark"/>
+        <result property="abcAppid" column="abc_appid"/>
+        <result property="abcAppsecret" column="abc_appsecret"/>
+        <result property="pageAddress" column="page_address"/>
+        <result property="isDeleted" column="is_deleted" />
+        <result property="gmtCreated" column="gmt_created" />
+        <result property="gmtModified" column="gmt_modified" />
+    </resultMap>
+
+    <sql id="MemberAccount_Base_Column_List">
+        id, app_key, app_secret, return_url, is_deny, remark,
+        keymark, abc_appid, abc_appsecret, page_address,
+        is_deleted, gmt_created, gmt_modified
+    </sql>
+    
+    <select id="MemberAccount_list" resultMap="get-MemberAccount-result">
+        select
+        	<include refid="MemberAccount_Base_Column_List"/>
+        from
+        	td_t_member_account
+        <where>
+	        <if test="appKey != null and appKey != null">
+		        and app_key = #{appKey}
+	        </if>
+	        <if test="isDeny != null and isDeny != null">
+	            and is_deny = #{isDeny}
+	        </if>
+	        <if test="abcAppid != null and abcAppid != null">
+		        and abc_appid = #{abcAppid}
+	        </if>
+	        <if test="remark != null and remark != null">
+		        and remark like concat('%', #{remark},'%')  
+	        </if>
+	        <if test="keymark != null and keymark != null">
+		        and keymark = #{keymark}
+	        </if>
+        	and is_deleted = 0
+        </where>
+    </select>
+    
+    <select id="MemberAccount_count" resultType="java.lang.Integer">
+        select
+        	count(1)
+        from
+        	td_t_member_account
+        <where>
+	        <if test="diffId != null and diffId != null">
+		        and id <![CDATA[<>]]> #{diffId}
+	        </if>
+	        <if test="keymark != null and keymark != null">
+		        and keymark = #{keymark}
+	        </if>
+        	and is_deleted = 0
+        </where>
+    </select>
+    
+    <select id="MemberAccount_get" resultMap="get-MemberAccount-result">
+        select
+        	<include refid="MemberAccount_Base_Column_List"/>
+        from
+        	td_t_member_account
+        where
+       		is_deleted = 0
+        	and id = #{id}
+    </select>
+    
+    <insert id="MemberAccount_insert" parameterType="com.mocentre.tehui.td.model.MemberAccount">
+        insert into td_t_member_account
+        (app_key, app_secret, return_url, is_deny, remark,
+        keymark, abc_appid, abc_appsecret, page_address,
+        is_deleted,gmt_created,gmt_modified)
+        values
+        (#{appKey}, #{appSecret}, #{returnUrl}, #{isDeny}, #{remark},
+        #{keymark}, #{abcAppid}, #{abcAppsecret}, #{pageAddress},
+        0, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+    
+    <update id="MemberAccount_update" parameterType="com.mocentre.tehui.td.model.MemberAccount">
+        update
+        	td_t_member_account
+        <set>
+            <if test="returnUrl != null and returnUrl != null">
+                return_url = #{returnUrl},
+            </if>
+            <if test="isDeny != null and isDeny != null">
+                is_deny = #{isDeny},
+            </if>
+            <if test="abcAppid != null and abcAppid != null">
+                abc_appid = #{abcAppid},
+            </if>
+            <if test="abcAppsecret != null and abcAppsecret != null">
+                abc_appsecret = #{abcAppsecret},
+            </if>
+            <if test="pageAddress != null and pageAddress != null">
+                page_address = #{pageAddress},
+            </if>
+            gmt_modified = now()
+        </set>
+        where
+        	id = #{id}
+    </update>
+
+    <update id="MemberAccount_delete" parameterType="java.util.HashMap">
+        update
+        	td_t_member_account
+        <set>
+            is_deleted = 1,
+            gmt_modified = now()
+        </set>
+        where
+        	id = #{id}
+    </update>
+
+</mapper>

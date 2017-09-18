@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.GoodsParam">
+    <resultMap id="get-GoodsParam-result" type="com.mocentre.tehui.goods.model.GoodsParam">
+        <id property="id" column="id"/>
+        <!-- 店铺id-->
+        <result property="shopId" column="shop_id"/>
+        <!-- 商品id-->
+        <result property="goodsId" column="goods_id"/>
+        <!-- 商品参数key-->
+        <result property="goodsKey" column="goods_key"/>
+        <!-- 商品参数value-->
+        <result property="goodsVal" column="goods_val"/>
+        <!-- 是否置顶-->
+        <result property="isTop" column="is_top"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="GoodsParam_Base_Column_List">
+        id, shop_id, goods_id,goods_key,goods_val,is_top
+    </sql>
+
+    <!--get-->
+    <select id="GoodsParam_get" resultMap="get-GoodsParam-result">
+        select
+            <include refid="GoodsParam_Base_Column_List"/>
+        from
+            gd_t_goods_param
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <!--getAll-->
+    <select id="GoodsParam_list" resultMap="get-GoodsParam-result">
+        select
+            <include refid="GoodsParam_Base_Column_List"/>
+        from
+            gd_t_goods_param
+        where
+        	is_deleted = 0
+        <if test="goodsId != null">
+            and goods_id = #{goodsId}
+        </if>
+    </select>
+
+    <!-- updata -->
+	<update id="GoodsParam_update" parameterType="com.mocentre.tehui.goods.model.GoodsParam">
+		update
+          gd_t_goods_param
+		<set>
+            <if test="goodsVal != null">
+                goods_val = #{goodsVal},
+            </if>
+            <if test="isTop != null">
+                is_top = #{isTop},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+	</update>
+
+    <insert id="GoodsParam_insert" parameterType="com.mocentre.tehui.goods.model.GoodsParam">
+        insert into  gd_t_goods_param
+            ( shop_id, goods_id,goods_key, goods_val,is_top,is_deleted,gmt_created,gmt_modified)
+        values
+            (
+            #{shopId},
+            #{goodsId},
+            #{goodsKey},
+            #{goodsVal},
+            #{isTop},
+            0,
+            now(),
+            now()
+            )
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <!--saveEntity 批量添加-->
+    <insert id="GoodsParam_insert_list" parameterType="java.util.List">
+        insert into  gd_t_goods_param
+            ( shop_id, goods_id,goods_key, goods_val,is_top,is_deleted,gmt_created,gmt_modified)
+        values
+        <foreach collection="list" item="item" index="index" separator="," >
+            (
+            #{item.shopId},
+            #{item.goodsId},
+            #{item.goodsKey},
+            #{item.goodsVal},
+            #{item.isTop},
+            0,
+            now(),
+            now()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 根据id删除 delById-->
+    <delete id="GoodsParam_del_id" parameterType="long">
+        delete from gd_t_goods_param where id = #{id}
+    </delete>
+    
+    <!--批量删除 delById-->
+    <delete id="GoodsParam_del_ids" parameterType="java.util.List">
+        delete from gd_t_goods_param where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!--根据用户id删除 delByGoodsId-->
+    <delete id="GoodsParam_del_goodsId" parameterType="long">
+        delete from gd_t_goods_param where goods_id = #{goodsId}
+    </delete>
+
+    <!--根据用户idList批量删除 delByGoodsId-->
+    <delete id="GoodsParam_del_goodsIds" parameterType="java.util.List">
+        delete from gd_t_goods_param where goods_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

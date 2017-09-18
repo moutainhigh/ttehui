@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.Attribute">
+    <resultMap id="get-Attribute-result" type="com.mocentre.tehui.goods.model.Attribute">
+        <id property="id" column="id"/>
+        <!-- 商品属性名-->
+        <result property="name" column="name"/>
+        <!-- 属性code-->
+        <result property="code" column="code"/>
+        <!-- 是否包含图片-->
+        <result property="isImg" column="is_img"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="Attribute_Base_Column_List">
+        id, name, code, is_img
+    </sql>
+
+    <select id="Attribute_get" resultMap="get-Attribute-result">
+        select
+            <include refid="Attribute_Base_Column_List"/>
+        from
+            gd_t_attribute
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="Attribute_list" resultMap="get-Attribute-result">
+        select
+            <include refid="Attribute_Base_Column_List"/>
+        from
+            gd_t_attribute
+        <where>
+        	<if test="name!=null and name!=''">
+        		and name=#{name}
+        	</if>
+        	<if test="code!=null and code!=''">
+        		and code=#{code}
+        	</if>
+        	and is_deleted = 0
+        </where>
+    </select>
+
+	<update id="Attribute_update" parameterType="com.mocentre.tehui.goods.model.Attribute">
+		update 
+			 gd_t_attribute
+		<set>
+            <if test="name != null and name != null">
+                name = #{name},
+            </if>
+            <if test="code != null and code != null">
+                code = #{code},
+            </if>
+            <if test="isImg != null and isImg != null">
+                is_img = #{isImg},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			id = #{id}
+	</update>
+
+    <insert id="Attribute_insert" parameterType="com.mocentre.tehui.goods.model.Attribute">
+        insert into gd_t_attribute
+        (name, code, is_img,
+         is_deleted,gmt_created,gmt_modified)
+        values
+        (#{name}, #{code}, #{isImg},
+         0, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <delete id="GoodsStorage_del_id" parameterType="long">
+        delete from gd_t_attribute where id = #{id}
+    </delete>
+
+    <delete id="GoodsStorage_del_ids" parameterType="java.util.List">
+        delete from gd_t_attribute where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    
+</mapper>

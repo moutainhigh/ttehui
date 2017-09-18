@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.system.model.User">
+
+	<resultMap id="get-User-result" type="User">
+		<id property="id" column="id" />
+		<result property="userName" column="user_name" />
+		<result property="realName" column="real_name" />
+		<result property="password" column="password" />
+		<result property="head" column="head" />
+		<result property="sex" column="sex" />
+		<result property="birthday" column="birthday" />
+		<result property="phone" column="phone" />
+		<result property="qq" column="qq" />
+		<result property="email" column="email" />
+		<result property="regDate" column="reg_date" />
+		<result property="shopId" column="shop_id" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+	
+	<sql id="User_Base_Column_List">
+		id, user_name, real_name, password, head,
+		sex, birthday, phone, qq, email, reg_date,
+		shop_id,gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+	<select id="User_get" resultMap="get-User-result">
+		select
+			<include refid="User_Base_Column_List" />
+		from
+			sys_t_user
+		where
+			id = #{id}
+	</select>
+
+	<select id="User_list" resultMap="get-User-result">
+		select
+		<include refid="User_Base_Column_List" />
+		from
+			sys_t_user
+		<where>
+			<if test="userName!=null and userName!='' ">
+				and user_name like concat('%', #{userName},'%')  
+			</if>
+			<if test="phone!=null and phone!='' ">
+				and phone=#{phone}
+			</if>
+			<if test="qq!=null and qq!='' ">
+				and qq=#{qq}  
+			</if>
+			<if test="email!=null and email!='' ">
+				and email= #{email}  
+			</if>
+			and is_deleted= 0
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by 
+		<choose>
+			<when test="orderColumn=='userName'"> 
+				user_name
+			</when>
+			<when test="orderColumn=='sex'"> 
+				sex
+			</when>
+			<when test="orderColumn=='phone'"> 
+				phone  
+			</when>
+			<when test="orderColumn=='qq'"> 
+				qq
+			</when>
+		</choose> 
+			${orderBy}
+		</if>
+	</select>
+	
+	<select id="User_login" resultMap="get-User-result">
+		select
+			<include refid="User_Base_Column_List" />
+		from 
+			sys_t_user 
+		where 
+				user_name=#{userName} 
+			and password=#{password}
+			and is_deleted= 0
+	</select>
+	
+	<select id="User_count" resultType="java.lang.Integer">
+		select count(1) from sys_t_user 
+		<where>
+			<if test="userName!=null and userName!='' ">
+				and user_name = #{userName}  
+			</if>
+			<if test="id!=null">
+				and id<![CDATA[<>]]>#{id}
+			</if>
+			and is_deleted= 0
+		</where>
+	</select>
+	
+	<insert id="User_insert" parameterType="User">
+		insert into sys_t_user
+		(user_name,real_name,password,head,sex,
+		birthday,phone,qq,email,reg_date,shop_id,
+		gmt_created,gmt_modified,is_deleted)
+		values
+		(#{userName},#{realName},#{password},#{head},#{sex},
+		#{birthday},#{phone},#{qq},#{email},#{regDate},#{shopId},
+		now(),now(),0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			select last_insert_id() as id;
+		</selectKey>
+	</insert>
+	
+	<update id="User_update" parameterType="com.mocentre.tehui.system.model.User">
+		update sys_t_user
+		set
+			<if test="userName != null and userName !=''" >
+				user_name=#{userName},
+			</if>
+			<if test="realName != null and realName !=''" >
+				real_name=#{realName},
+			</if>
+			<if test="head != null and head !=''" >
+				head=#{head},
+			</if>
+			<if test="sex != null and sex !=''" >
+				sex=#{sex},
+			</if>
+			<if test="birthday != null" >
+				birthday=#{birthday},
+			</if>
+			<if test="phone != null and phone !=''" >
+				phone=#{phone},
+			</if>
+			<if test="qq != null and qq !=''" >
+				qq=#{qq},
+			</if>
+			<if test="email != null and email !=''" >
+				email=#{email},
+			</if>
+			<if test="shopId != null and shopId !=''" >
+				shop_id=#{shopId},
+			</if>
+			gmt_modified=now()
+		where
+			id = #{id}
+	</update>
+	
+	<update id="User_updateSelective" parameterType="map">
+		update sys_t_user
+		set
+			<if test="userName != null" >
+				user_name=#{userName},
+			</if>
+			<if test="realName != null" >
+				real_name=#{realName},
+			</if>
+			<if test="password != null" >
+				password=#{password},
+			</if>
+			<if test="head != null" >
+				head=#{head},
+			</if>
+			<if test="sex != null" >
+				sex=#{sex},
+			</if>
+			<if test="birthday != null" >
+				birthday=#{birthday},
+			</if>
+			<if test="phone != null" >
+				phone=#{phone},
+			</if>
+			<if test="qq != null" >
+				qq=#{qq},
+			</if>
+			<if test="email != null" >
+				email=#{email},
+			</if>
+			<if test="shopId != null and shopId !=''" >
+				shop_id=#{shopId},
+			</if>
+			gmt_modified=now()
+	</update>
+	
+	<update id="User_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update sys_t_user
+		set
+			is_deleted=1
+		where
+			id = #{id}
+	</update>
+	
+	<delete id="User_deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from sys_t_user
+		where
+			id = #{id}
+	</delete>
+	
+</mapper>

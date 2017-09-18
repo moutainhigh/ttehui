@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.td.model.ThirdOrder">
+	<resultMap id="get-ThirdOrder-result" type="com.mocentre.tehui.td.model.ThirdOrder">
+		<id property="id" column="id" />
+    	<result property="abcaid" column="abcaid" />
+    	<result property="orderNum" column="order_num" />
+    	<result property="orderAmount" column="order_amount" />
+    	<result property="orderStatus" column="order_status" />
+    	<result property="paymentNum" column="payment_num" />
+    	<result property="orderTimes" column="order_times" />
+    	<result property="orderDate" column="order_date" />
+    	<result property="orderTime" column="order_time" />
+    	<result property="orderSource" column="order_source" />
+    	<result property="products" column="products" />
+    	<result property="notifyUrl" column="notify_url" />
+    	<result property="appKey" column="app_key" />
+    	<result property="isDeleted" column="is_deleted" />
+    	<result property="gmtCreated" column="gmt_created" />
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="ThirdOrder_Base_Column_List">
+		id, abcaid, order_num, order_amount, payment_num,
+    	order_status, order_times, order_source, products, notify_url,
+    	order_date, order_time, app_key, 
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="ThirdOrder_get" resultMap="get-ThirdOrder-result">
+		select
+    		<include refid="ThirdOrder_Base_Column_List" />
+	 	from 
+			td_t_third_order
+		where 
+			id = #{id}
+    </select>
+	
+	<select id="ThirdOrder_list" resultMap="get-ThirdOrder-result">
+		select
+			<include refid="ThirdOrder_Base_Column_List" />
+	 	from 
+			td_t_third_order    
+		<where>
+			<if test="orderNum!=null">
+				and order_num = #{orderNum}
+			</if>
+			<if test="appKey!=null">
+				and app_key = #{appKey}
+			</if>
+			<if test="paymentNum!=null">
+				and payment_num = #{paymentNum}
+			</if>
+			and is_deleted = 0
+		</where>
+    </select>
+	
+   <insert id="ThirdOrder_insert" parameterType="com.mocentre.tehui.td.model.ThirdOrder" >
+      insert into td_t_third_order
+		(abcaid, order_num, order_amount, order_status, order_times, 
+		order_source, products, notify_url, payment_num, order_date, 
+		order_time, app_key, 
+		is_deleted, gmt_created, gmt_modified)
+		values
+		(#{abcaid}, #{orderNum}, #{orderAmount}, #{orderStatus}, #{orderTimes}, 
+		#{orderSource}, #{products}, #{notifyUrl}, #{paymentNum}, #{orderDate}, 
+		#{orderTime}, #{appKey}, 
+		0, #{gmtCreated}, #{gmtModified})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="ThirdOrder_update" parameterType="com.mocentre.tehui.td.model.ThirdOrder">
+		update td_t_third_order
+		set
+      		payment_num = #{paymentNum},
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="ThirdOrder_status_update" parameterType="com.mocentre.tehui.td.model.ThirdOrder">
+		update td_t_third_order
+		set
+      		order_status = #{orderStatus},
+			gmt_modified = now()
+    	where 
+			payment_num = #{paymentNum}
+    </update>
+    
+    <update id="ThirdOrder_status_update_refund" parameterType="com.mocentre.tehui.td.model.ThirdOrder">
+		update td_t_third_order
+		set
+      		order_status = #{orderStatus},
+			gmt_modified = now()
+    	where 
+			order_num = #{orderNum}
+			and app_key = #{appKey}
+    </update>
+    
+</mapper>

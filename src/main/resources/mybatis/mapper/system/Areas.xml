@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.system.model.Areas">
+	<resultMap id="get-Areas-result" type="com.mocentre.tehui.system.model.Areas">
+		<id property="id" column="id" />
+		<!-- 编码(不可重复)-->
+    	<result property="code" column="code" />
+		<!-- 名称-->
+    	<result property="name" column="name" />
+		<!-- 父编码 -->
+    	<result property="pCode" column="p_code" />
+		<!-- 类型(province:省  city:市 area:区)-->
+    	<result property="type" column="type" />
+		<!-- 百度城市码-->
+		<result property="bdCityCode" column="bd_citycode" />
+		<!-- 经度-->
+    	<result property="longitude" column="longitude" />
+		<!-- 纬度-->
+    	<result property="latitude" column="latitude" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="Areas_Base_Column_List">
+		id, code, name, p_code, type,
+    	bd_citycode, longitude, latitude,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<!-- 获取所有地区 -->
+	<select id="Areas_list"  resultMap="get-Areas-result">
+		select
+    		<include refid="Areas_Base_Column_List" />
+	 	from 
+			sys_t_areas
+		<where>
+			<if test="code!=null and code!=''">
+				and code = #{code}
+			</if>
+			and is_deleted = 0    
+		</where> 
+    </select>
+    
+    <!-- 获取所有的省级地区 -->
+    <select id="Areas_getAllProvince"  resultMap="get-Areas-result">
+		select
+    		code,name
+	 	from 
+			sys_t_areas
+		where 
+				is_deleted = 0 
+			and type = 'province'    
+    </select>
+    
+    <!-- 获取所有的市级地区 -->
+    <select id="Areas_getAllCity"  resultMap="get-Areas-result">
+		select
+    		code,name,p_code
+	 	from 
+			sys_t_areas
+		where 
+				is_deleted = 0
+			and	type = 'city'    
+    </select>
+    
+    <!-- 获取所有的省级地区 -->
+    <select id="Areas_getAllAreas"  resultMap="get-Areas-result">
+		select
+    		code,name,p_code
+	 	from 
+			sys_t_areas
+		where 
+				is_deleted = 0
+			and type = 'area'    
+    </select>
+    
+    
+    <!-- 根据p_code获取下级地区 -->
+    <select id="Areas_getToPcode"  resultMap="get-Areas-result">
+		select
+    		<include refid="Areas_Base_Column_List" />
+	 	from 
+			sys_t_areas
+		where 
+				is_deleted = 0
+			and	p_code = #{p_code}
+    </select>
+    
+   <insert id="Areas_insert" parameterType="com.mocentre.tehui.system.model.Areas" >
+      insert into sys_t_areas(
+		code, name, p_code, type,
+	    bd_citycode, longitude, latitude,
+		is_deleted, gmt_created, gmt_modified)
+		values(
+		#{code}, #{name}, #{pCode}, #{type},
+		#{bdCityCode}, #{longitude}, #{latitude},
+		0, #{gmtCreated}, #{gmtModified})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="Areas_update" parameterType="com.mocentre.tehui.system.model.Areas">
+    	update sys_t_areas
+			set 
+				gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+	
+	<delete id="Areas_delete" parameterType="com.mocentre.tehui.system.model.Areas">
+    	delete from sys_t_areas
+		where 
+			id = #{id}
+  	</delete>
+  	
+</mapper>

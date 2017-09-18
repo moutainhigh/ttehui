@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.system.model.UserRole">
+	<resultMap id="get-UserRole-result" type="com.mocentre.tehui.system.model.UserRole">
+		<id property="id" column="id" />
+		<!-- 用户id-->
+    	<result property="userId" column="user_id" />
+		<!-- 角色id-->
+    	<result property="roleId" column="role_id" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 更新时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除-->
+    	<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+	
+	<sql id="UserRole_Base_Column_List">
+		id, user_id, role_id,
+    	gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+	<select id="UserRole_get" resultMap="get-UserRole-result">
+		 select
+    		<include refid="UserRole_Base_Column_List" />
+	 	 from 
+			sys_r_user_role
+		 where is_deleted = 1
+		   and id = #{id}
+    </select>
+	
+	<select id="UserRole_list"  resultMap="get-UserRole-result">
+		select
+			<include refid="UserRole_Base_Column_List" />
+		from 
+			sys_r_user_role 
+		<where>
+			is_deleted = 0 
+			<if test="userId != null" >
+				and user_id = #{userId}
+            </if>
+		</where>   
+    </select>
+	
+   <insert id="UserRole_insert" parameterType="com.mocentre.tehui.system.model.UserRole" >
+      insert into sys_r_user_role
+		(user_id, role_id,
+		gmt_created, gmt_modified, is_deleted)values
+		(#{userId}, #{roleId},
+		now(), now(), 0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="UserRole_update" parameterType="com.mocentre.tehui.system.model.UserRole">
+    	update sys_r_user_role
+		set
+       		user_id = #{userId},
+       		role_id = #{roleId},
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="UserRole_updateSelective" parameterType="map">
+        update sys_r_user_role
+        set
+			<if test="record.userId != null" >
+				user_id = #{userId},
+            </if>
+			<if test="record.roleId != null" >
+				role_id = #{roleId},
+            </if>
+			<if test="record.isDeleted != null" >
+				is_deleted = #{isDeleted},
+            </if>
+		        gmt_modified = now()
+    </update>
+    
+    <update id="UserRole_logicDelete" parameterType="com.mocentre.tehui.system.model.UserRole">
+		update sys_r_user_role
+		set
+			is_deleted=0 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+	<delete id="UserRole_delete" parameterType="com.mocentre.tehui.system.model.UserRole">
+    	delete from sys_r_user_role
+		where 
+			user_id = #{userId}
+  	</delete>
+  	
+</mapper>

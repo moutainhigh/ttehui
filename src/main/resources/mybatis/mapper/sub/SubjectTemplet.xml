@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.sub.model.SubjectTemplet">
+	<resultMap id="get-SubjectTemplet-result" type="com.mocentre.tehui.sub.model.SubjectTemplet">
+		<id property="id" column="id" />
+		<!-- 模板名称 -->
+		<result property="name" column="name" />
+		<!-- 唯一编码（区分是那个画面） -->
+		<result property="code" column="code" />
+		<!-- 图片宽 -->
+		<result property="imgWidth" column="img_width" />
+		<!-- 图片高 -->
+		<result property="imgHeight" column="img_height" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="SubjectTemplet_Base_Column_List">
+		id, name, code,  img_width, img_height, 
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<!--getAll -->
+	<select id="SubjectTemplet_getAll" resultMap="get-SubjectTemplet-result">
+		select
+			<include refid="SubjectTemplet_Base_Column_List" />
+		from
+			sub_t_subject_templet
+		where
+			is_deleted = 0
+	</select>
+
+	<select id="SubjectTemplet_list" resultMap="get-SubjectTemplet-result">
+		select
+			<include refid="SubjectTemplet_Base_Column_List" />
+		from
+			sub_t_subject_templet
+		where
+			is_deleted = 0
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='code'">
+					code
+				</when>
+			</choose>
+			${orderBy}
+		</if>
+	</select>
+
+	<!--get -->
+	<select id="SubjectTemplet_get" resultMap="get-SubjectTemplet-result">
+		select
+			<include refid="SubjectTemplet_Base_Column_List" />
+		from
+			sub_t_subject_templet
+		where
+			is_deleted = 0 and id=#{id}
+	</select>
+
+	<!--getByCode -->
+	<select id="SubjectTemplet_getByCode" resultMap="get-SubjectTemplet-result">
+		select
+			<include refid="SubjectTemplet_Base_Column_List" />
+		from
+			sub_t_subject_templet
+		where
+			is_deleted = 0 and code=#{code}
+	</select>
+
+	<!-- saveEntity -->
+	<insert id="SubjectTemplet_insert" parameterType="com.mocentre.tehui.sub.model.SubjectTemplet">
+		insert into sub_t_subject_templet
+		(name, code, img_width, img_height, 
+		 gmt_created, gmt_modified, is_deleted)
+		values
+		(#{name}, #{code}, #{imgWidth}, #{imgHeight},
+		 now(), now(),0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="SubjectTemplet_update" parameterType="com.mocentre.tehui.sub.model.SubjectTemplet">
+		update
+			sub_t_subject_templet
+		<set>
+			code = #{code},
+			img_width = #{imgWidth},
+			img_height = #{imgHeight},
+			gmt_modified = now()
+		</set>
+		where is_deleted = 0 and id = #{id}
+	</update>
+
+	<update id="SubjectTemplet_logicDelete" parameterType="long">
+		update 
+			sub_t_subject_templet
+		<set>
+			is_deleted = 1
+		</set>
+		where id = #{id}
+	</update>
+
+</mapper>

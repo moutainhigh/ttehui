@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.GoodsStorage">
+    <resultMap id="get-GoodsStorage-result" type="com.mocentre.tehui.goods.model.GoodsStorage">
+        <id property="id" column="id"/>
+        <!-- 商品id -->
+        <result property="goodsId" column="goods_id"/>
+        <!-- 规格编码code -->
+        <result property="standardCode" column="standard_code"/>
+        <!-- 库存量 -->
+        <result property="stockNum" column="stock_num"/>
+        <!-- 活动类型  todo -->
+        <result property="subGoodsId" column="subGoods_id"/>
+        <!-- 规格描述 -->
+        <result property="describe" column="describe"/>
+        <!-- 单价 -->
+        <result property="salePrice" column="sale_price"/>
+        <!-- 原价 -->
+        <result property="oldPrice" column="old_price"/>
+        <!-- 数据版本号 -->
+        <result property="version" column="version"/>
+        <!-- 创建时间 -->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间 -->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="GoodsStorage_Base_Column_List">
+        id,goods_id, standard_code,subGoods_id,`describe`, stock_num,sale_price,old_price,version
+    </sql>
+    <sql id="GoodsStorage_Column_List">
+        id, goods_id, standard_code,subGoods_id,`describe`, stock_num,sale_price,old_price,version,gmt_created,gmt_modified
+    </sql>
+
+    <!-- get-->
+    <select id="GoodsStorage_get" resultMap="get-GoodsStorage-result">
+        select
+            <include refid="GoodsStorage_Column_List"/>
+        from
+            gd_t_goods_storage
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="GoodsStorage_list" resultMap="get-GoodsStorage-result">
+        select
+            <include refid="GoodsStorage_Column_List"/>
+        from
+            gd_t_goods_storage
+        <where>
+        	<if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="goodsId != null">
+               and goods_id = #{goodsId}
+            </if>
+            <if test="standardCode != '' and standardCode != null">
+               and standard_code = #{standardCode}
+            </if>
+            <if test="salePrice != null">
+               and sale_price = #{salePrice}
+            </if>
+            <if test="oldPrice != null">
+                and old_price =#{oldPrice}
+            </if>
+            <if test="stockNum != null">
+               and stock_num = #{stockNum}
+            </if>
+            <if test="subGoodsId != null">
+                and subGoods_id = #{subGoodsId}
+            </if>
+            and is_deleted = 0
+		</where>
+    </select>
+
+	<update id="GoodsStorage_update" parameterType="com.mocentre.tehui.goods.model.GoodsStorage">
+		update
+            gd_t_goods_storage
+            <set>
+                <if test="stockNum != null">
+                    stock_num = #{stockNum},
+                </if>
+                <if test="salePrice != null">
+                    sale_price = #{salePrice},
+                </if>
+                <if test="oldPrice != null">
+                    old_price =#{oldPrice},
+                </if>
+                <if test="version != null">
+                    version = version +1,
+                </if>
+                gmt_modified = now()
+            </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+            and version = #{version}
+	</update>
+
+    <insert id="GoodsStorage_insert" parameterType="com.mocentre.tehui.goods.model.GoodsStorage">
+        insert into gd_t_goods_storage
+            ( goods_id,standard_code,subGoods_id,`describe`,stock_num,sale_price,old_price,version,is_deleted,gmt_created,gmt_modified)
+        values
+        (#{goodsId},#{standardCode},#{subGoodsId}, #{describe},#{stockNum}, #{salePrice}, #{oldPrice}, 1, 0, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <insert id="GoodsStorage_insert_List" parameterType="java.util.List">
+        insert into gd_t_goods_storage
+            (goods_id,standard_code,subGoods_id,`describe`,stock_num,sale_price,old_price,version,is_deleted,gmt_created,gmt_modified)
+        values
+        <foreach collection="list" item="item" index="index" separator="," >
+            (#{item.goodsId},#{item.standardCode},#{item.subGoodsId},#{item.describe},#{item.stockNum},#{item.salePrice},#{item.oldPrice},0,0,now(),now())
+        </foreach>
+    </insert>
+
+    <delete id="GoodsStorage_del_goodsId" parameterType="long">
+        delete from gd_t_goods_storage where goods_id = #{goodsId}
+    </delete>
+    
+    <delete id="GoodsStorage_del_goodsIdAndSubGoodsId" parameterType="java.util.Map">
+        delete from gd_t_goods_storage where goods_id = #{goodsId} and subGoods_id = #{subGoodsId}
+    </delete>
+
+    <select id="GoodsStorage_TotalStocknum_Goosid" resultType="java.lang.Long" parameterType="java.util.Map">
+        select
+            sum(stock_num) as stock_num
+        from
+            gd_t_goods_storage
+        <where>
+	        <if test="goodsId != null">
+	           and goods_id = #{goodsId}
+	        </if>
+            <if test="subGoodsId != null">
+                and subGoods_id = #{subGoodsId}
+            </if>
+			<if test="standardCode != '' and standardCode != null">
+                and standard_code = #{standardCode}
+            </if>
+         	and is_deleted = 0
+        </where>
+    </select>
+
+    <update id="GoodsStorage_update_neednum" parameterType="com.mocentre.tehui.goods.model.GoodsStorage">
+        update
+        	gd_t_goods_storage
+        set
+        	stock_num = stock_num + #{stockNum},
+            version = version +1,
+            gmt_modified = now()
+        where
+	        goods_id = #{goodsId}
+            and subGoods_id = #{subGoodsId}
+            and standard_code = #{standardCode}
+        	and is_deleted = 0
+    </update>
+    
+    <!-- 加减库存 -->
+    <update id="GoodsStorage_update_stocknum" parameterType="com.mocentre.tehui.goods.model.GoodsStorage">
+        update
+        	gd_t_goods_storage
+        set
+        	stock_num = #{stockNum},
+            version = version +1,
+            gmt_modified = now()
+        where
+	        goods_id = #{goodsId}
+            and subGoods_id = #{subGoodsId}
+            and standard_code = #{standardCode}
+        	and is_deleted = 0
+    </update>
+    
+</mapper>

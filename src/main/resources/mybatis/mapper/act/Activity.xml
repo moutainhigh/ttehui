@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.act.model.Activity">
+	<resultMap id="get-Activity-result" type="com.mocentre.tehui.act.model.Activity">
+		<id property="id" column="id" />
+		<!-- 店铺id -->
+		<result property="shopId" column="shop_id" />
+		<!-- 活动名称 -->
+		<result property="title" column="title" />
+		<!-- 是否展示 -->
+		<result property="isShow" column="is_show" />
+		<!-- 活动简介 -->
+		<result property="intro" column="intro" />
+		<!-- 排序 -->
+		<result property="sorting" column="sorting" />
+		<!-- 类别 -->
+		<result property="type" column="type" />
+		<!-- 展示位置 -->
+		<result property="showLocal" column="show_local" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="Activity_Base_Column_List">
+		id, shop_id, title, is_show, intro,
+		sorting, type, show_local,
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<select id="Activity_get" resultMap="get-Activity-result">
+		select
+			<include refid="Activity_Base_Column_List" />
+		from
+			act_t_activity
+		where
+			is_deleted = 0 and id = #{id}
+	</select>
+	
+	<select id="Activity_list" resultMap="get-Activity-result">
+		select
+			<include refid="Activity_Base_Column_List" />
+		from
+			act_t_activity
+		<where>
+			<if test="shopId != null">
+            	and shop_id = #{shopId}
+        	</if>
+        	<if test="id != null">
+            	and id = #{id}
+        	</if>
+        	<if test="type != null">
+            	and type = #{type}
+        	</if>
+        	<if test="title != null and title !=''">
+           		and title = #{title}
+        	</if>
+        	<if test="isShow != null">
+           		and is_show = #{isShow}
+        	</if>
+        	<if test="showLocal != null and showLocal !=''">
+           		and show_local = #{showLocal}
+        	</if>
+        	and	is_deleted= 0 
+		</where>
+		<if test="column!=null and column!=''">
+			order by
+			<choose>
+				<when test="column=='sorting'">
+					sorting
+				</when>
+				<when test="column=='showLocal'">
+					show_local
+				</when>
+				<when test="column=='type'">
+					type
+				</when>
+			<otherwise>
+				gmt_created
+			</otherwise>
+			</choose>
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+	</select>
+
+	<insert id="Activity_insert" parameterType="com.mocentre.tehui.act.model.Activity">
+		insert into act_t_activity
+		(shop_id, title, is_show, intro, sorting,
+		 type, show_local,
+		 gmt_created, gmt_modified, is_deleted)
+		values
+		(#{shopId}, #{title}, #{isShow}, #{intro}, #{sorting},
+		 #{type}, #{showLocal},
+		 now(), now(), 0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="Activity_update" parameterType="com.mocentre.tehui.act.model.Activity">
+		update
+			act_t_activity
+		<set>
+			<if test="shopId != null">
+				shop_id = #{shopId},
+			</if>
+		 	<if test="title != null and title !=''">
+		 		title = #{title},
+		 	</if> 
+		 	<if test="isShow != null">
+		 		is_show = #{isShow},
+		 	</if>
+		 	<if test="intro != null and intro !=''">
+		 		intro = #{intro},
+		 	</if>
+		 	<if test="sorting != null and sorting !=''">
+		 		sorting = #{sorting},
+		 	</if>
+		 	<if test="showLocal != null and showLocal !=''">
+		 		show_local = #{showLocal},
+		 	</if>
+			gmt_modified = now()
+		</set>
+		where 
+				is_deleted = 0 
+			and id = #{id}
+	</update>
+
+	<update id="Activity_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update 
+			act_t_activity
+		set
+			is_deleted = 1
+		where id = #{id}
+	</update>
+	
+	<update id="Activity_updateShow" parameterType="java.util.Map">
+		update 
+			act_t_activity
+		set
+			gmt_modified = now() ,is_show = #{isShow}
+		where
+			id = #{id}
+	</update> 
+
+</mapper>

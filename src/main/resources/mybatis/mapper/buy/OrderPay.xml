@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.OrderPay">
+	<resultMap id="get-OrderPay-result" type="com.mocentre.tehui.buy.model.OrderPay">
+		<id property="id" column="id" />
+		<!-- 支付编号-->
+    	<result property="paymentNum" column="payment_num" />
+		<!-- 订单编号-->
+    	<result property="orderNum" column="order_num" />
+    	<!-- 订单金额-->
+    	<result property="orderAmount" column="order_amount" />
+		<!-- 支付方式（kcode：K码支付   wxpay：微信支付  alipay：支付宝支付）-->
+    	<result property="payType" column="pay_type" />
+    	<!-- 付款时间 -->
+    	<result property="payDate" column="pay_date" />
+		<!-- 支付状态-->
+    	<result property="payStatus" column="pay_status" />
+		<!-- 交易批次号-->
+    	<result property="batchNo" column="batch_no" />
+		<!-- 交易状态-->
+    	<result property="batchStatus" column="batch_status" />
+		<!-- 交易金额-->
+    	<result property="amount" column="amount" />
+		<!-- 商户备注-->
+    	<result property="remark" column="remark" />
+		<!-- 通知类型(0:页面通知   1:服务器通知)-->
+    	<result property="notifyType" column="notify_type" />
+		<!-- 支付流水号-->
+    	<result property="irspRef" column="irsp_ref" />
+		<!-- 交易凭证号-->
+    	<result property="voucherNo" column="voucher_no" />
+		<!-- 银行交易日期-->
+    	<result property="hostDate" column="host_date" />
+		<!-- 银行交易时间-->
+    	<result property="hostTime" column="host_time" />
+    	<!-- 商户编号-->
+    	<result property="mchId" column="mch_id" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="OrderPay_Base_Column_List">
+		id, payment_num,order_num, order_amount, pay_type, pay_date, pay_status, batch_no,
+    	batch_status, amount, remark, notify_type, irsp_ref,
+    	voucher_no, host_date, host_time, mch_id,
+    	is_deleted,gmt_created,gmt_modified
+	</sql>
+	
+	<select id="OrderPay_get" resultMap="get-OrderPay-result">
+		select
+    		<include refid="OrderPay_Base_Column_List" />
+	 	from 
+			buy_t_order_pay
+		where 
+			id = #{id}
+    </select>
+	
+	<select id="OrderPay_list" resultMap="get-OrderPay-result">
+		select
+    		<include refid="OrderPay_Base_Column_List" />
+	 	from 
+			buy_t_order_pay
+		where 
+			is_deleted = 0
+			<if test="orderNum!=null">
+				and order_num = #{orderNum}
+			</if>  
+			<if test="paymentNum!=null">
+				and payment_num = #{paymentNum}
+			</if>  
+    </select>
+	
+   <insert id="OrderPay_insert" parameterType="com.mocentre.tehui.buy.model.OrderPay" >
+      insert into buy_t_order_pay(
+		payment_num, order_num, order_amount, pay_type, pay_date, pay_status, batch_no, 
+		batch_status, amount, remark, notify_type, irsp_ref, voucher_no,
+		host_date, host_time, mch_id,
+		is_deleted, gmt_created, gmt_modified)
+		values(
+		#{paymentNum}, #{orderNum}, #{orderAmount}, #{payType}, #{payDate}, #{payStatus}, #{batchNo}, 
+		#{batchStatus}, #{amount}, #{remark}, #{notifyType}, #{irspRef}, #{voucherNo},
+		#{hostDate}, #{hostTime}, #{mchId},
+		0, #{gmtCreated}, #{gmtModified})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <insert id="OrderPay_insert_batch" parameterType="com.mocentre.tehui.buy.model.OrderPay" >
+      insert into buy_t_order_pay(
+		payment_num, order_num, order_amount, pay_type, pay_date, pay_status, batch_no, 
+		batch_status, amount, remark, notify_type, irsp_ref, 
+		voucher_no, host_date, host_time, mch_id,
+		is_deleted, gmt_created, gmt_modified)
+		values
+		<foreach collection ="list" item ="item" index ="index" separator =",">
+		(#{item.paymentNum}, #{item.orderNum}, #{item.orderAmount}, #{item.payType}, #{item.payDate}, #{item.payStatus}, #{item.batchNo},
+		#{item.batchStatus}, #{item.amount}, #{item.remark}, #{item.notifyType}, #{item.irspRef}, 
+		#{item.voucherNo}, #{item.hostDate}, #{item.hostTime}, #{item.mchId},
+		0, #{item.gmtCreated}, #{item.gmtModified})
+		</foreach>
+    </insert>
+    
+    <update id="OrderPay_update" parameterType="com.mocentre.tehui.buy.model.OrderPay">
+    	update buy_t_order_pay
+			set
+				<if test="payStatus!=null and payStatus!=''">
+	          		pay_status = #{payStatus},
+				</if>
+				<if test="batchStatus!=null and batchStatus!=''">
+	          		batch_status = #{batchStatus},
+				</if>
+				<if test="amount!=null">
+	          		amount = #{amount},
+				</if>
+				<if test="payType!=null and payType!=''">
+					pay_type = #{payType},
+				</if>
+				<if test="batchNo!=null and batchNo!=''">
+	          		batch_no = #{batchNo},
+				</if>
+				<if test="notifyType!=null">
+	          		notify_type = #{notifyType},
+				</if>
+				<if test="irspRef!=null and irspRef!=''">
+	          		irsp_ref = #{irspRef},
+				</if>
+				<if test="voucherNo!=null and voucherNo!=''">
+	          		voucher_no = #{voucherNo},
+				</if>
+				<if test="hostDate!=null and hostDate!=''">
+	          		host_date = #{hostDate},
+				</if>
+				<if test="hostTime!=null and hostTime!=''">
+	          		host_time = #{hostTime},
+				</if>
+				<if test="mchId!=null and mchId!=''">
+	          		mch_id = #{mchId},
+				</if>
+			gmt_modified = now()
+    	where 
+			payment_num = #{paymentNum}
+    </update>
+    
+    <update id="OrderPay_logicDelete" parameterType="com.mocentre.tehui.buy.model.OrderPay">
+		update buy_t_order_pay
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+	<delete id="OrderPay_delete" parameterType="com.mocentre.tehui.buy.model.OrderPay">
+    	delete from buy_t_order_pay
+		where 
+			id = #{id}
+  	</delete>
+  	
+  	<update id="OrderPay_update_byorder" parameterType="com.mocentre.tehui.buy.model.OrderPay">
+		update buy_t_order_pay
+		set
+			<if test="payStatus!=null and payStatus!=''">
+          		pay_status = #{payStatus},
+			</if>
+			<if test="payType!=null and payType!=''">
+          		pay_type = #{payType},
+			</if>
+			<if test="orderAmount!=null">
+          		order_amount = #{orderAmount},
+			</if>
+			<if test="payDate!=null">
+          		pay_date = #{payDate},
+			</if>
+          	payment_num = #{paymentNum},
+			gmt_modified = now()
+		where
+			order_num = #{orderNum}
+	</update>
+  	
+</mapper>

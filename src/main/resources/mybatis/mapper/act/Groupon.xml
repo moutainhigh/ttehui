@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.act.model.Groupon">
+	<resultMap id="get-Groupon-result" type="com.mocentre.tehui.act.model.Groupon">
+		<id property="id" column="id" />
+		<!-- 拼团商品表关联id -->
+		<result property="actGoodsId" column="act_goods_id" />
+		<!-- 参与者用户id -->
+		<result property="openUserId" column="open_user_id" />
+		<!-- 参团用户头像-->
+		<result property="openProfile" column="open_profile" />
+		<!-- 团长开团时间 -->
+		<result property="openTime" column="open_time" />
+		<!-- 拼团结束时间 -->
+		<result property="closeTime" column="close_time" />
+		<!-- 开团时间 -->
+		<result property="beginTime" column="begin_time" />
+		<!-- 结束时间 -->
+		<result property="endTime" column="end_time" />
+		<!-- 实际参团人数 -->
+		<result property="takeNum" column="take_num" />
+		<!-- 需要参团人数 -->
+		<result property="grouponNum" column="groupon_num" />
+		<!-- 是否付款 -->
+		<result property="isPay" column="is_pay" />
+		<!-- 成团状态 -->
+		<result property="groupStatus" column="group_status" />
+		<!-- 成团时间 -->
+		<result property="groupTime" column="group_time" />
+		<!-- 是否处理 -->
+		<result property="isDeal" column="is_deal" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="Groupon_Base_Column_List">
+		id, act_goods_id, open_user_id, open_profile, 
+		open_time, close_time, begin_time, end_time, is_pay,
+		take_num, groupon_num, group_status, group_time, is_deal, 
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+	<select id="Groupon_get" resultMap="get-Groupon-result">
+		select
+			<include refid="Groupon_Base_Column_List" />
+		from
+			act_t_groupon
+		where
+				is_deleted = 0 
+			and id = #{id} 
+	</select>
+
+	<select id="Groupon_byUnfinished" resultMap="get-Groupon-result">
+		select
+			<include refid="Groupon_Base_Column_List" />
+		from
+			act_t_groupon
+		where
+			is_deleted = 0 
+			and act_goods_id = #{actGoodsId}
+			and take_num  <![CDATA[<]]> groupon_num
+			and close_time  <![CDATA[>]]> now()
+			<if test="isPay != null">
+				and is_pay = #{isPay}
+			</if>
+	</select>
+	
+	<select id="Groupon_list" resultMap="get-Groupon-result">
+		select
+			<include refid="Groupon_Base_Column_List" />
+		from
+			act_t_groupon
+		<where>
+			is_deleted= 0 
+			<if test="id != null">
+				and id = #{id}
+        	</if>
+			<if test="actGoodsId != null">
+				and act_goods_id = #{actGoodsId}
+        	</if>
+        	<if test="isClose != null">
+				and close_time <![CDATA[<]]> now()
+				and take_num  <![CDATA[<]]> groupon_num
+        	</if>
+        	<if test="isPay != null">
+				and is_pay = #{isPay}
+        	</if>
+        	<if test="isDeal != null">
+				and is_deal = #{isDeal}
+        	</if>
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='openTime'">
+					open_time
+				</when>
+				<when test="orderColumn=='groupStatus'">
+					group_status
+				</when>
+				<when test="orderColumn=='isPay'">
+					is_pay
+				</when>
+			</choose>
+			${orderBy}
+		</if>
+	</select>
+
+	<insert id="Groupon_insert" parameterType="com.mocentre.tehui.act.model.Groupon">
+		insert into act_t_groupon
+		(
+			act_goods_id, open_user_id, open_profile, open_time, close_time,
+			begin_time, end_time, take_num, groupon_num, is_pay,
+			group_status, group_time, is_deal, 
+			is_deleted, gmt_created, gmt_modified
+		)
+		values
+		(
+			#{actGoodsId}, #{openUserId}, #{openProfile}, now(), date_add(now(), INTERVAL 1 day),
+			#{beginTime}, #{endTime}, #{takeNum}, #{grouponNum}, #{isPay},
+			#{groupStatus}, #{groupTime}, #{isDeal}, 
+			0, now(), now()
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="Groupon_update" parameterType="com.mocentre.tehui.act.model.Groupon">
+		update
+			act_t_groupon
+		set
+			<if test="isPay != null">
+				is_pay = #{isPay},
+        	</if>
+        	<if test="isDeal != null">
+				is_deal = #{isDeal},
+        	</if>
+        	<if test="groupStatus != null and groupStatus !=''">
+				group_status = #{groupStatus},
+        	</if>
+			<if test="groupTime != null">
+				group_time = #{groupTime},
+        	</if>
+        	<if test="isDeal != null">
+				is_deal = #{isDeal},
+        	</if>
+        	gmt_modified = now()
+		where 
+				is_deleted = 0 
+			and id = #{id} 
+	</update>
+	
+	<update id="Groupon_update_ns" parameterType="com.mocentre.tehui.act.model.Groupon">
+		update
+			act_t_groupon
+		set
+			take_num = take_num + #{takeNum},
+			group_status = #{groupStatus},
+			gmt_modified = now()
+		where 
+				is_deleted = 0 
+			and id = #{id} 
+			and take_num <![CDATA[ < ]]> groupon_num
+	</update>
+	
+</mapper>

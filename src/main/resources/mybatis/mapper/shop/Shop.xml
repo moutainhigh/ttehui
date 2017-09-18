@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.shop.model.Shop">
+    <resultMap id="get-Shop-result" type="com.mocentre.tehui.shop.model.Shop">
+        <id property="id" column="id"/>
+        <!-- 店铺名称-->
+        <result property="name" column="name"/>
+        <!-- 店铺logo-->
+        <result property="img_logo" column="img_logo"/>
+        <!-- 店铺等级-->
+        <result property="level" column="level"/>
+        <!-- 店铺负责人-->
+        <result property="leader" column="leader"/>
+        <!-- 开店日期-->
+        <result property="open_date" column="open_date"/>
+        <!-- 店铺地址-->
+        <result property="address" column="address"/>
+        <!-- 店铺状态（opening:营业中 stop:关闭 pause:暂停）-->
+        <result property="buss_status" column="buss_status"/>
+        <!-- 审核状态（wait:审核中 pass:审核通过 unpass:审核不通过）-->
+        <result property="audit_status" column="audit_status"/>
+        <!-- 店铺url-->
+        <result property="show_url" column="show_url"/> 
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+        <!-- 是否被使用掉-->
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+    <sql id="Shop_Base_Column_List">
+        id, 
+        name, 
+        img_logo,
+        level,
+        leader,
+        open_date,
+        address,
+        buss_status,
+        audit_status,
+        show_url,
+        gmt_created, 
+        gmt_modified, 
+        is_deleted
+    </sql>
+
+    <select id="Shop_getAll" resultMap="get-Shop-result">
+        select
+        	<include refid="Shop_Base_Column_List"/>
+        from
+       	 	gd_t_shop
+        where
+            is_deleted = 0
+    </select>
+    
+    <select id="Shop_get" resultMap="get-Shop-result">
+        select
+        	<include refid="Shop_Base_Column_List"/>
+        from
+       	 	gd_t_shop
+        where
+            is_deleted = 0 and id = #{id}
+    </select>
+    
+    <select id="Shop_getAllInName" resultMap="get-Shop-result">
+        select
+        	<include refid="Shop_Base_Column_List"/>
+        from
+       	 	gd_t_shop
+        where
+        	is_deleted = 0 and name = #{name}
+    </select>
+    
+    <select id="Shop_list" resultMap="get-Shop-result">
+        select
+        	<include refid="Shop_Base_Column_List"/>
+        from
+       	 	gd_t_shop
+        where
+        	is_deleted = 0
+        	<if test="name !=null and name != ''">
+				and name = #{name}
+			</if>
+			<if test="leader !=null and leader != ''">
+				and leader = #{leader}
+			</if>
+			<if test="level !=null">
+				and level = #{level}
+			</if>
+			<if test="open_date !=null">
+				and open_date = #{open_date}
+			</if>
+			<if test="address !=null and address != ''">
+				and address = #{address}
+			</if>
+			<if test="buss_status !=null and buss_status != ''">
+				and buss_status = #{buss_status}
+			</if>
+			<if test="audit_status !=null and audit_status != ''">
+				and audit_status = #{audit_status}
+			</if>
+			<if test="show_url !=null and show_url != ''">
+				and show_url = #{show_url}
+			</if>
+    </select>
+    
+	<update id="Shop_update" parameterType="com.mocentre.tehui.shop.model.Shop">
+		update 
+			gd_t_shop
+		set
+			name = #{name},
+			img_logo = #{img_logo},
+			<!-- level = #{level}, -->
+			leader = #{leader},
+			address = #{address},
+			<!-- buss_status = #{buss_status},
+			audit_status = #{audit_status},
+			show_url = #{show_url}, -->
+			gmt_modified = now()
+		where
+			is_deleted = 0 and id = #{id}
+	</update>
+	
+	<update id="Shop_updateAS" parameterType="com.mocentre.tehui.shop.model.Shop">
+		update 
+			gd_t_shop
+		set
+			audit_status = #{audit_status},
+			gmt_modified = now()
+		where
+			is_deleted = 0 and id = #{id}
+	</update>
+	
+	<update id="Shop_updateBS" parameterType="com.mocentre.tehui.shop.model.Shop">
+		update 
+			gd_t_shop
+		set
+			buss_status = #{buss_status},
+			gmt_modified = now()
+		where
+			is_deleted = 0 and id = #{id}
+	</update>
+	
+	<insert id="Shop_insert" parameterType="com.mocentre.tehui.shop.model.Shop">
+		insert into gd_t_shop
+			(gmt_created,
+			gmt_modified,
+			open_date,
+	        name, 
+	        img_logo,
+	        level,
+	        leader,
+	        address,
+	        buss_status,
+	        audit_status,
+	        show_url)
+		values
+			(now(),
+			now(),
+			now(),
+			#{name},
+			#{img_logo},
+			#{level},
+			#{leader},
+			#{address},
+			#{buss_status},
+			#{audit_status},
+			#{show_url}
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+		
+	<delete id="Shop_deleteByPrimaryKey" parameterType="com.mocentre.tehui.shop.model.Shop">
+		delete from gd_t_shop
+		where 
+			id = #{id}
+	</delete>
+	
+	
+</mapper>

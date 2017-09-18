@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.OrderDetail">
+	<resultMap id="get-OrderDetail-result" type="com.mocentre.tehui.buy.model.OrderDetail">
+		<id property="id" column="id" />
+    	<result property="orderNum" column="order_num" />
+    	<result property="orderDetailNum" column="order_detail_num" />
+    	<result property="goodsId" column="goods_id" />
+    	<result property="goodsName" column="goods_name" />
+    	<result property="goodsImg" column="goods_img" />
+    	<result property="goodsStandard" column="goods_standard" />
+    	<result property="goodsStandardDes" column="goods_standard_des" />
+    	<result property="goodsActGoodsId" column="goods_act_goods_id" />
+    	<result property="goodsCategory" column="goods_category" />
+    	<result property="goodsPrice" column="goods_price" />
+    	<result property="goodsRealPrice" column="goods_real_price" />
+    	<result property="goodsAmount" column="goods_amount" />
+    	<result property="isDeleted" column="is_deleted" />
+    	<result property="gmtCreated" column="gmt_created" />
+    	<result property="gmtModified" column="gmt_modified" />
+    	<result property="applyTime" column="apply_time" />
+    	<result property="refundStatus" column="refund_status" />
+    	<result property="refundTime" column="refund_time" />
+    	<result property="refundMoney" column="refund_money" />
+    	<result property="refundReason" column="refund_reason" />
+    	<result property="refundDes" column="refund_des" />
+    	<result property="couponSn" column="coupon_sn" />
+    	<result property="couponMoney" column="coupon_money" />
+	</resultMap>
+	
+	<sql id="OrderDetail_Base_Column_List">
+		id, order_num, order_detail_num, goods_id, goods_name, goods_img, goods_act_goods_id,
+    	goods_standard, goods_standard_des, goods_category, goods_price, goods_real_price, goods_amount,
+    	refund_status, refund_time, refund_money, refund_reason, refund_des, coupon_sn, coupon_money,
+    	apply_time, is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="OrderDetail_list" resultMap="get-OrderDetail-result">
+		select
+			<include refid="OrderDetail_Base_Column_List" />
+		from 
+			buy_t_order_detail  
+		<where>
+		 	<if test="orderNum!=null and orderNum!=''">
+				and order_num=#{orderNum}
+		 	</if>
+		 	<if test="orderDetailNum!=null and orderDetailNum!=''">
+				and order_detail_num=#{orderDetailNum}
+		 	</if>
+		    	and is_deleted = 0
+		 </where>
+    </select>
+    
+    <insert id="OrderDetail_insert" parameterType="com.mocentre.tehui.buy.model.OrderDetail" >
+      insert into buy_t_order_detail(
+		order_num, order_detail_num, goods_id, goods_name, goods_img, goods_standard, 
+		goods_standard_des, goods_price, goods_category, goods_real_price, goods_amount,
+		refund_status, refund_time, refund_money, coupon_sn, coupon_money,
+		goods_act_goods_id, is_deleted, gmt_created, gmt_modified)
+		values(
+		#{orderNum}, #{orderDetailNum}, #{goodsId}, #{goodsName}, #{goodsImg}, #{goodsStandard},
+		#{goodsStandardDes}, #{goodsPrice}, #{goodsCategory}, #{goodsRealPrice}, #{goodsAmount}, 
+		#{refundStatus}, #{refundTime}, #{refundMoney}, #{couponSn}, #{couponMoney},
+		#{goodsActGoodsId}, 0, #{gmtCreated},#{gmtModified})
+    </insert>
+	
+   <insert id="OrderDetail_insert_batch" parameterType="java.util.List">
+      insert into buy_t_order_detail(
+		order_num, order_detail_num, goods_id, goods_name, goods_img, goods_standard,
+		goods_standard_des, goods_price, goods_category, goods_real_price, goods_amount,
+		refund_status, refund_time, refund_money, coupon_sn, coupon_money,
+		goods_act_goods_id, is_deleted, gmt_created, gmt_modified)
+		values
+		<foreach collection ="list" item ="item" index ="index" separator =",">
+		(#{item.orderNum}, #{item.orderDetailNum}, #{item.goodsId}, #{item.goodsName}, #{item.goodsImg}, #{item.goodsStandard},
+		#{item.goodsStandardDes}, #{item.goodsPrice}, #{item.goodsCategory}, #{item.goodsRealPrice}, #{item.goodsAmount}, 
+		#{item.refundStatus}, #{item.refundTime}, #{item.refundMoney}, #{item.couponSn}, #{item.couponMoney},
+		#{item.goodsActGoodsId}, 0, #{item.gmtCreated},#{item.gmtModified})
+		</foreach>
+    </insert>
+    
+    <update id="OrderDetail_update" parameterType="com.mocentre.tehui.buy.model.OrderDetail">
+    	update buy_t_order_detail
+		set 
+			<if test="couponSn!=null">
+				coupon_sn = #{couponSn},
+			</if>
+			<if test="couponMoney!=null">
+				coupon_money = #{couponMoney},
+			</if>
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="OrderDetail_update_refund" parameterType="com.mocentre.tehui.buy.model.OrderDetail">
+    	update buy_t_order_detail
+		set 
+			refund_status = #{refundStatus},
+			refund_time = #{refundTime},
+			gmt_modified = now()
+    	where 
+			order_num = #{orderNum}
+    </update>
+    
+    <update id="OrderDetail_update_refund_ing" parameterType="java.util.Map">
+    	update buy_t_order_detail
+		set
+			refund_status = #{refundStatus},
+			<if test="refundReason!=null">
+				refund_reason = #{refundReason},
+			</if>
+			<if test="refundDes!=null">
+				refund_des = #{refundDes},
+			</if>
+			<if test="applyTime!=null">
+				apply_time = #{applyTime},
+			</if>
+			gmt_modified = now()
+    	where 
+				order_detail_num = #{orderDetailNum} 
+			and refund_status = #{oldRefundStatus}
+    </update>
+    
+    <update id="OrderDetail_update_refund_suc" parameterType="com.mocentre.tehui.buy.model.OrderDetail">
+    	update buy_t_order_detail
+		set
+			refund_status = #{refundStatus},
+			refund_time = #{refundTime},
+			refund_money = #{refundMoney},
+			gmt_modified = now()
+    	where 
+			order_detail_num = #{orderDetailNum}
+    </update>
+    
+    <update id="OrderDetail_logicDelete" parameterType="com.mocentre.tehui.buy.model.OrderDetail">
+		update buy_t_order_detail
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+</mapper>

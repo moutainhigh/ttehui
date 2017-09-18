@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.Navigate">
+    <resultMap id="get-Navigate-result" type="com.mocentre.tehui.goods.model.Navigate">
+        <id property="id" column="id"/>
+        <!-- 店铺id-->
+        <result property="shopId" column="shop_id"/>
+        <!--名称-->
+        <result property="title" column="title"/>
+        <!-- 图片-->
+        <result property="showImg" column="show_img"/>
+        <!-- 是否显示-->
+        <result property="isShow" column="is_show"/>
+        <!-- 排序-->
+        <result property="sorting" column="sorting"/>
+        <!-- 关联的类型 活动/专题-->
+        <result property="type" column="type"/>
+        <!-- 关联id-->
+        <result property="typeId" column="type_id"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="Navigate_Base_Column_List">
+        id, shop_id, title, show_img, is_show, sorting, type, type_id
+    </sql>
+
+    <select id="Navigate_get" resultMap="get-Navigate-result">
+        select
+        	<include refid="Navigate_Base_Column_List"/>
+        from
+        	gd_t_navigate
+        where
+        	 	is_deleted = 0
+			and	id = #{id} 
+    </select>
+    
+    <select id="Navigate_list" resultMap="get-Navigate-result">
+        select
+        	<include refid="Navigate_Base_Column_List" />
+        from
+        	gd_t_navigate
+        <where>
+            is_deleted = 0
+            <if test="shopId != null">
+                and shop_id = #{shopId}
+            </if>
+            <if test="title != null and title !='' ">
+                and title = #{title}
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+            <if test="typeId != null">
+                and type_id = #{typeId}
+            </if>
+            <if test="isShow != null">
+                and is_show = #{isShow}
+            </if>
+        </where>
+        <if test="orderColumn!=null and orderColumn!=''">
+			order by 
+			<choose>
+				<when test="orderColumn=='sorting'"> 
+					sorting
+				</when>
+			</choose> 
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+    </select>
+
+    <update id="Navigate_update" parameterType="com.mocentre.tehui.goods.model.Navigate">
+        update
+        	gd_t_navigate
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="showImg != null">
+                show_img = #{showImg},
+            </if>
+            <if test="sorting != null">
+                sorting = #{sorting},
+            </if>
+            <if test="isShow != null">
+                is_show = #{isShow},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="typeId != null">
+                type_id = #{typeId},
+            </if>
+            gmt_modified = now()
+        </set>
+        where
+	        	is_deleted = 0
+	        and id = #{id}
+    </update>
+
+    <insert id="Navigate_insert" parameterType="com.mocentre.tehui.goods.model.Navigate">
+        insert into gd_t_navigate
+        (shop_id, title, show_img, sorting, type, type_id,
+         is_show,  
+         is_deleted,gmt_created,gmt_modified)
+        values
+        (#{shopId}, #{title}, #{showImg}, #{sorting}, #{type}, #{typeId},
+         #{isShow},
+        0, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <update id="Navigate_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+        update
+        	gd_t_navigate
+        set 
+        	is_deleted = 1, gmt_modified = now()
+		where 
+			id = #{id}
+    </update>
+    
+    <delete id="Navigate_deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from gd_t_navigate where id = #{id}
+    </delete>
+    
+    <delete id="Navigate_del_ShopId" parameterType="java.lang.Long">
+        delete from gd_t_navigate where shop_id = #{id}
+    </delete>
+
+    <delete id="Navigate_del_ShopIds" parameterType="java.util.List">
+        delete from gd_t_navigate where shop_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

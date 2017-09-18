@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.Category">
+    <resultMap id="get-Category-result" type="com.mocentre.tehui.goods.model.Category">
+        <id property="id" column="id"/>
+        <!-- 店铺id-->
+        <result property="shopId" column="shop_id"/>
+        <!-- 排序-->
+        <result property="sorted" column="sorted"/>
+        <!-- name-->
+        <result property="name" column="name"/>
+        <!-- banner -->
+        <result property="banner" column="banner"/>
+        <!-- isShow -->
+        <result property="isShow" column="is_show"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="Category_Base_Column_List">
+        id,shop_id, name,banner,sorted,is_show
+    </sql>
+
+    <select id="Category_get" resultMap="get-Category-result">
+        select
+            <include refid="Category_Base_Column_List"/>
+        from
+            gd_t_category
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="Category_list" resultMap="get-Category-result">
+        select
+        <include refid="Category_Base_Column_List"/>
+        from
+            gd_t_category
+        where
+            is_deleted = 0
+            <if test="shopId != null">
+                and shop_id =#{shopId}
+            </if>
+            <if test="name != '' and name != null">
+                and name like concat('%', #{name},'%')
+            </if>
+            <if test="sorted != null">
+                and sorted=#{sorted}
+            </if>
+            <if test="isShow != null">
+                and is_show=#{isShow}
+            </if>
+         <if test="orderColumn!=null and orderColumn!=''">
+         	order by 
+         		<if test="orderColumn=='name'">
+         			name
+         		</if>
+         		<if test="orderColumn=='sorted'">
+	                sorted
+	            </if>
+	            <if test="orderColumn=='isShow'">
+	                is_show
+	            </if>
+         	<if test="orderBy!=null and orderBy!=''">
+         		${orderBy}
+         	</if>
+         </if>
+    </select>
+
+	<update id="Category_update" parameterType="com.mocentre.tehui.goods.model.Category">
+		update
+            gd_t_category
+		<set>
+            <if test="name != '' and name != null">
+                name =#{name},
+            </if>
+            <if test="sorted != null">
+                sorted =#{sorted},
+            </if>
+            <if test="banner != '' and banner != null">
+                banner =#{banner},
+            </if>
+            <if test="isShow != '' and isShow != null">
+                is_show =#{isShow},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+	</update>
+
+    <insert id="Category_insert" parameterType="com.mocentre.tehui.goods.model.Category">
+        insert into gd_t_category
+        (shop_id, name, banner, sorted, is_show,
+         is_deleted,gmt_created,gmt_modified)
+        values
+        (#{shopId}, #{name}, #{banner}, #{sorted}, #{isShow},
+         0, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <insert id="Category_insert_List" parameterType="java.util.List">
+        insert into gd_t_category
+            (shop_id, name, banner, sorted, is_show,
+             is_deleted,gmt_created,gmt_modified)
+        values
+        <foreach collection="list" item="item" index="index" separator="," >
+            (#{item.shopId}, #{item.name}, #{item.banner}, #{item.sorted}, #{item.isShow},
+             0, now(), now())
+        </foreach>
+    </insert>
+    
+    <update id="Category_del_id" parameterType="long">
+        update
+        	gd_t_category
+        <set>
+            gmt_modified = now(),
+            is_deleted = 1
+        </set>
+        where
+            is_deleted = 0
+            and id = #{id}
+    </update>
+
+    <update id="Category_del_ids" parameterType="java.util.List">
+        update
+          gd_t_category
+        <set>
+            gmt_modified = now(),
+            is_deleted = 1
+        </set>
+        where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    
+</mapper>

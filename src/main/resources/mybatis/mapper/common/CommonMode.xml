@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ /*
+  ~  * Copyright 2016 mocentre.com All right reserved. This software is the
+  ~  * confidential and proprietary information of mocentre.com ("Confidential
+  ~  * Information"). You shall not disclose such Confidential Information and shall
+  ~  * use it only in accordance with the terms of the license agreement you entered
+  ~  * into with mocentre.com .
+  ~  */
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.fee.model.core">
+
+	<update id="Common_truncate" parameterType="java.util.Map">
+		  TRUNCATE TABLE ${tableName}
+	</update>
+
+</mapper>

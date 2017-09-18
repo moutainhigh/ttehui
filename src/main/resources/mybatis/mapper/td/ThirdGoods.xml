@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.td.model.ThirdGoods">
+	<resultMap id="get-ThirdGoods-result" type="com.mocentre.tehui.td.model.ThirdGoods">
+		<id property="id" column="id" />
+		<result property="title" column="title" />
+		<result property="oldPrice" column="old_price" />
+		<result property="sellPrice" column="sell_price" />
+		<result property="showImg" column="show_img" />
+		<result property="describe" column="describe" />
+		<result property="linkUrl" column="link_url" />
+		<result property="showLocal" column="show_local" />
+		<result property="sorting" column="sorting" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="ThirdGoods_Base_Column_List">
+		id, title, old_price, sell_price,
+		show_img, `describe`, link_url, show_local,
+		sorting, gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<select id="ThirdGoods_get" resultMap="get-ThirdGoods-result">
+		select
+			<include refid="ThirdGoods_Base_Column_List" />
+		from
+			td_t_third_goods
+		where
+			is_deleted = 0 and id = #{id}
+	</select>
+	
+	<select id="ThirdGoods_list" resultMap="get-ThirdGoods-result">
+		select
+			<include refid="ThirdGoods_Base_Column_List" />
+		from
+			td_t_third_goods
+		<where>
+			<if test="showLocal != null and showLocal !='' ">
+            	and show_local = #{showLocal}
+        	</if>
+        	<if test="title != null and title !='' ">
+            	and is_chain = #{isChain}
+        	</if>
+			<if test="old_price != null">
+				and old_price = #{oldPrice}
+			</if>
+        	<if test="sell_price != null">
+            	and sell_price = #{sellPrice}
+        	</if>
+			<if test="sorting != null">
+				and sorting = #{sorting}
+			</if>
+        	and	is_deleted= 0 
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='showLocal'">
+					show_local
+				</when>
+				<when test="orderColumn=='sorting'">
+					sorting
+				</when>
+			<otherwise>
+				gmt_created
+			</otherwise>
+			</choose>
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+	</select>
+
+	<insert id="ThirdGoods_insert" parameterType="com.mocentre.tehui.td.model.ThirdGoods">
+		insert into td_t_third_goods
+		(title, old_price, sell_price,
+		show_img, `describe`, link_url, show_local,
+		sorting, gmt_created, gmt_modified, is_deleted)
+		values
+		(#{title}, #{oldPrice}, #{sellPrice}, #{showImg},
+		 #{describe}, #{linkUrl}, #{showLocal},
+		 #{sorting}, now(), now(), 0)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="ThirdGoods_update" parameterType="com.mocentre.tehui.td.model.ThirdGoods">
+		update
+			td_t_third_goods
+		<set>
+			<if test="title != null and title!='' ">
+				title = #{title},
+			</if>
+			<if test="oldPrice != null and oldPrice!='' ">
+				old_price = #{oldPrice},
+			</if>
+			<if test="sellPrice != null and sellPrice!='' ">
+				sell_price = #{sellPrice},
+			</if>
+			<if test="showImg != null and showImg!='' ">
+				show_img = #{showImg},
+			</if>
+			<if test="describe != null and describe!='' ">
+				`describe` = #{describe},
+			</if>
+			<if test="linkUrl != null and linkUrl!='' ">
+				link_url = #{linkUrl},
+			</if>
+			<if test="showLocal != null and showLocal!='' ">
+				show_local = #{showLocal},
+			</if>
+			<if test="sorting != null ">
+				sorting = #{sorting},
+			</if>
+			gmt_modified = now()
+		</set>
+		where 
+			is_deleted = 0 and id = #{id}
+	</update>
+
+	<update id="ThirdGoods_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update 
+			td_t_third_goods
+		set
+			is_deleted = 1
+		where id = #{id}
+	</update>
+
+</mapper>

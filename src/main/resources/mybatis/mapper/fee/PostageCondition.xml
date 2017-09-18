@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.fee.model.PostageCondition">
+    <resultMap id="get-PostageCondition-result" type="com.mocentre.tehui.fee.model.PostageCondition">
+        <id property="id" column="id"/>
+        <!-- 运费模板id -->
+        <result property="freight_id" column="freight_id"/>
+        <!-- 包邮地区-->
+        <result property="post_area" column="post_area"/>
+        <!-- 包邮方式（money.金额 num.件数 weight.重量）-->
+        <result property="post_way" column="post_way"/>
+        <!-- 条件（gt:大于 lt:小于）-->
+        <result property="need_con" column="need_con"/>
+        <!-- 条件值-->
+        <result property="con_value" column="con_value"/>
+        <!-- 运送方式(express.快递 ems.ems mail.平邮)-->
+        <result property="send_way" column="send_way"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+        <!-- 是否被使用掉-->
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+    <sql id="PostageCondition_Base_Column_List">
+        id, 
+        freight_id, 
+        post_area,
+        post_way,
+        need_con,
+        con_value,
+        send_way,
+        gmt_created,
+        gmt_modified,
+        is_deleted
+    </sql>
+
+    <select id="PostageCondition_get" resultMap="get-PostageCondition-result">
+        select
+        	<include refid="PostageCondition_Base_Column_List"/>
+        from
+       	 	fee_t_postage_condition
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+    
+    <select id="PostageCondition_list" resultMap="get-PostageCondition-result">
+        select
+        	<include refid="PostageCondition_Base_Column_List"/>
+        from
+       	 	fee_t_postage_condition
+        where
+        	is_deleted = 0
+        	<if test="freight_id !=null">
+				and freight_id = #{freight_id}
+			</if>
+			<if test="send_way !=null and send_way != ''">
+				and send_way = #{send_way}
+			</if>
+    </select>
+    
+	<update id="PostageCondition_update" parameterType="com.mocentre.tehui.fee.model.PostageCondition">
+		update 
+			fee_t_postage_condition
+		set
+	        freight_id = #{freight_id},
+	        post_area = #{post_area},
+	        post_way = #{post_way},
+	        need_con = #{need_con},
+	        con_value = #{con_value},
+	        send_way = #{send_way},
+			gmt_modified = now()
+		where
+			is_deleted = 0 and id = #{id}
+	</update>
+	
+	<insert id="PostageCondition_insert" parameterType="com.mocentre.tehui.fee.model.PostageCondition">
+		insert into fee_t_postage_condition
+			(gmt_created,
+			gmt_modified,
+			freight_id, 
+	        post_area,
+	        post_way,
+	        need_con,
+	        con_value,
+	        send_way)
+		values
+			(now(),
+			now(),
+			#{freight_id},
+			#{post_area},
+			#{post_way},
+			#{need_con},
+			#{con_value},
+			#{send_way},
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="PostageCondition_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update 
+			fee_t_postage_condition
+		set
+			is_deleted = 1 
+		where
+			id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.OrderLogistics">
+	<resultMap id="get-OrderLogistics-result" type="com.mocentre.tehui.buy.model.OrderLogistics">
+		<id property="id" column="id" />
+		<!-- 订单id-->
+    	<result property="orderId" column="order_id" />
+		<!-- 物流公司-->
+    	<result property="company" column="company" />
+		<!-- 物流单号-->
+    	<result property="expNum" column="exp_num" />
+		<!-- 短信提醒-->
+    	<result property="isSms" column="is_sms" />
+		<!-- 物流状态-->
+    	<result property="status" column="status" />
+		<!-- 物流公司编码-->
+		<result property="logisticsCode" column="logistics_code" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="OrderLogistics_Base_Column_List">
+		id, order_id, company,
+    	exp_num, is_sms, status, logistics_code,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="OrderLogistics_list" resultMap="get-OrderLogistics-result">
+		select
+			<include refid="OrderLogistics_Base_Column_List" />
+		from 
+			buy_t_order_logistics
+		<where> 
+			<if test="orderId!=null">
+				and order_id = #{orderId}
+            </if>
+			and is_deleted = 0
+        </where>
+    </select>
+	
+   <insert id="OrderLogistics_insert" parameterType="com.mocentre.tehui.buy.model.OrderLogistics" >
+      insert into buy_t_order_logistics(
+		order_id, company, exp_num, is_sms, status,
+	    logistics_code, is_deleted, gmt_created, gmt_modified)
+		values(
+		#{orderId}, #{company}, #{expNum}, #{isSms}, #{status},
+		#{logisticsCode}, 0, #{gmtCreated}, #{gmtModified})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="OrderLogistics_update" parameterType="com.mocentre.tehui.buy.model.OrderLogistics">
+    	update buy_t_order_logistics
+			set
+			<if test="company!=null and company!=''">
+				company = #{company},
+            </if>
+			<if test="expNum!=null and expNum!=''">
+				exp_num = #{expNum},
+            </if>
+			<if test="isSms!=null and isSms!=''">
+				is_sms = #{isSms},
+            </if>
+			<if test="logisticsCode!=null and logisticsCode!=''">
+				logistics_code = #{logisticsCode},
+			</if>
+			gmt_modified = now()
+    	where 
+			order_id = #{orderId}
+    </update>
+    
+    <update id="OrderLogistics_logicDelete" parameterType="com.mocentre.tehui.buy.model.OrderLogistics">
+		update buy_t_order_logistics
+		set 
+			is_deleted=1 ,gmt_modified = now()
+		where
+			order_id = #{orderId}
+	</update>
+	
+	<delete id="OrderLogistics_delete" parameterType="com.mocentre.tehui.buy.model.OrderLogistics">
+    	delete from buy_t_order_logistics
+		where 
+			order_id = #{orderId}
+  	</delete>
+  	
+</mapper>

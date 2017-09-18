@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.act.model.ActivityGoods">
+	<resultMap id="get-ActivityGoods-result" type="com.mocentre.tehui.act.model.ActivityGoods">
+		<id property="id" column="id" />
+		<!-- 活动id -->
+		<result property="activityId" column="activity_id" />
+		<!-- 商品id -->
+		<result property="goodsId" column="goods_id" />
+		<!-- 商品图片 -->
+		<result property="goodsImg" column="goods_img" />
+		<!-- 商品名称 -->
+		<result property="goodsName" column="goods_name" />
+		<!-- 宣传语 -->
+		<result property="tagline" column="tagline" />
+		<!-- 商品售价(可能是区间) -->
+		<result property="sellPrice" column="sell_price" />
+		<!-- 商品最低售价 -->
+		<result property="sellLowPrice" column="sell_low_price" />
+		<!-- 商品原价(可能是区间) -->
+		<result property="oldPrice" column="old_price" />
+		<!-- 商品最低原价 -->
+		<result property="oldLowPrice" column="old_low_price" />
+		<!-- 活动类型 -->
+		<result property="activityType" column="activity_type" />
+		<!-- 拼团所能参与人数  -->
+		<result property="grouponNum" column="groupon_num" />
+		<!-- 真实跳转链接url  -->
+		<result property="actualUrl" column="actual_url" />
+		<!-- 短链接url -->
+		<result property="shortUrl" column="short_url" />
+		<!-- 开始时间 -->
+		<result property="beginTime" column="begin_time" />
+		<!-- 结束时间 -->
+		<result property="endTime" column="end_time" />
+		<!-- 拥有的库存规格json串 -->
+		<result property="holdStandard" column="hold_standard" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="ActivityGoods_Base_Column_List">
+		id, activity_id, goods_id, goods_img, goods_name,
+		tagline, sell_price, old_price, groupon_num, activity_type,
+		actual_url, short_url, begin_time, end_time, hold_standard,
+		sell_low_price, old_low_price,
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<select id="ActivityGoods_list" resultMap="get-ActivityGoods-result">
+		select
+			<include refid="ActivityGoods_Base_Column_List" />
+		from
+			act_r_activity_goods
+		<where>
+			<if test="activityId != null">
+				and activity_id = #{activityId}
+			</if>
+			<if test="goodsId != null">
+				and goods_id = #{goodsId}
+			</if>
+			and is_deleted= 0 
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='beginTime'">
+					begin_time
+				</when>
+			<otherwise>
+				gmt_created
+			</otherwise>
+			</choose>
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+	</select>
+
+	<select id="ActivityGoods_get" resultMap="get-ActivityGoods-result">
+		select
+			<include refid="ActivityGoods_Base_Column_List" />
+		from
+			act_r_activity_goods
+		where
+				is_deleted = 0 
+			and id = #{id}
+	</select>
+	
+	<insert id="ActivityGoods_insert" parameterType="com.mocentre.tehui.act.model.ActivityGoods">
+		insert into act_r_activity_goods
+			(activity_id, goods_id, goods_img, goods_name,
+			 tagline, sell_price, old_price, groupon_num, activity_type,
+			 actual_url, short_url, begin_time, end_time, hold_standard,
+			 sell_low_price, old_low_price, 
+			 is_deleted, gmt_created, gmt_modified)
+		values
+			(#{activityId}, #{goodsId}, #{goodsImg}, #{goodsName},
+			 #{tagline}, #{sellPrice}, #{oldPrice}, #{grouponNum}, #{activityType},
+			 #{actualUrl}, #{shortUrl}, #{beginTime}, #{endTime}, #{holdStandard},
+			 #{sellLowPrice}, #{oldLowPrice}, 
+			 0, now(),now()) 
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="ActivityGoods_update" parameterType="com.mocentre.tehui.act.model.ActivityGoods">
+		update
+			act_r_activity_goods
+		<set>
+        	<if test="goodsImg != null and goodsImg !='' ">
+            	goods_img = #{goodsImg},
+        	</if>
+        	<if test="goodsName != null and goodsName !='' ">
+            	goods_name = #{goodsName},
+        	</if>
+        	<if test="tagline != null and tagline !='' ">
+            	tagline = #{tagline},
+        	</if>
+        	<if test="sellPrice != null and sellPrice !='' ">
+            	sell_price = #{sellPrice},
+        	</if>
+        	<if test="oldPrice != null and oldPrice !='' ">
+            	old_price = #{oldPrice},
+        	</if>
+        	<if test="sellLowPrice != null">
+            	sell_low_price = #{sellLowPrice},
+        	</if>
+        	<if test="oldLowPrice != null">
+            	old_Low_price = #{oldLowPrice},
+        	</if>
+        	<if test="grouponNum != null">
+            	groupon_num = #{grouponNum},
+        	</if>
+        	<if test="actualUrl != null and actualUrl !='' ">
+            	actual_url = #{actualUrl},
+        	</if>
+        	<if test="shortUrl != null and shortUrl !='' ">
+            	short_url = #{shortUrl},
+        	</if>
+        	<if test="beginTime != null">
+            	begin_time = #{beginTime},
+        	</if>
+        	<if test="endTime != null">
+            	end_time = #{endTime},
+        	</if>
+        	<if test="holdStandard != null and holdStandard !=''">
+            	hold_standard = #{holdStandard},
+        	</if>
+			gmt_modified = now()
+		</set>
+		where is_deleted = 0 and id = #{id}
+	</update>
+
+	<update id="ActivityGoods_updateTime" parameterType="com.mocentre.tehui.act.model.ActivityGoods">
+		update
+		act_r_activity_goods
+		<set>
+			<if test="beginTime != null">
+				begin_time = #{beginTime},
+			</if>
+			<if test="endTime != null">
+				end_time = #{endTime},
+			</if>
+			gmt_modified = now()
+		</set>
+		where is_deleted = 0 and activity_id = #{activityId}
+	</update>
+
+	<delete id="ActivityGoods_deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete 
+		from 
+			act_r_activity_goods
+		where id = #{id}
+	</delete>
+	
+	<update id="ActivityGoods_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update
+			act_r_activity_goods
+		set
+			is_deleted = 1
+		where id = #{id}
+	</update>
+	
+</mapper>

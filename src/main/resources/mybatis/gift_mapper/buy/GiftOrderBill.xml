@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.gift.buy.model.GiftOrderBill">
+	<resultMap id="get-GiftOrderBill-result" type="com.mocentre.gift.buy.model.GiftOrderBill">
+		<id property="id" column="id" />
+		<!-- 用户id-->
+    	<result property="customerId" column="customer_id" />
+		<!-- 订单id-->
+		<result property="orderId" column="order_id" />
+		<!-- 订单编号-->
+		<result property="orderNum" column="order_num" />
+		<!-- 是否为纸质-->
+    	<result property="isPaper" column="is_paper" />
+		<!-- 是否是增值税发票-->
+    	<result property="isVAT" column="is_VAT" />
+		<!-- 纳税人识别号-->
+    	<result property="taxId" column="tax_id" />
+		<!-- 名称-->
+    	<result property="header" column="header" />
+		<!-- 地址-->
+    	<result property="address" column="address" />
+		<!-- 联系电话-->
+    	<result property="telephone" column="telephone" />
+		<!-- 银行卡卡号-->
+    	<result property="accountNum" column="account_num" />
+		<!-- 开户行-->
+    	<result property="bank" column="bank" />
+		<!-- 发票类型（personal:个人  compay:公司）-->
+    	<result property="isCompay" column="is_compay" />
+		<!-- 是否为默认-->
+		<result property="isDefault" column="is_default" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="GiftOrderBill_Base_Column_List">
+		id, customer_id,order_id,order_num,is_paper,is_VAT,tax_id, header,address,telephone,bank,account_num,is_compay,is_default,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+
+	<insert id="GiftOrderBill_insert" parameterType="com.mocentre.gift.buy.model.GiftOrderBill" >
+		insert into gift_buy_t_order_bill(
+		customer_id,order_id,order_num,is_paper,is_VAT,tax_id, header,address,telephone,bank,account_num,is_compay,is_default,
+		is_deleted, gmt_created, gmt_modified)
+		values(
+		#{customerId},#{orderId},#{orderNum}, #{isPaper}, #{isVAT}, #{taxId}, #{header}, #{address}, #{telephone}, #{bank}, #{accountNum}, #{isCompay}, #{isDefault},
+		0, now(),now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="GiftOrderBill_update" parameterType="com.mocentre.gift.buy.model.GiftOrderBill">
+		update gift_buy_t_order_bill
+		set
+		<if test="isPaper != null and isPaper != ''">
+			is_paper=#{isPaper},
+		</if>
+		<if test="isVAT != null and isVAT != ''">
+			is_VAT=#{isVAT},
+		</if>
+		<if test="taxId != null and taxId != ''">
+			tax_id=#{taxId},
+		</if>
+		<if test="header!=null and header != ''">
+			header=#{header},
+		</if>
+		<if test="address!=null and address != ''">
+			address=#{address},
+		</if>
+		<if test="telephone!=null and telephone != ''">
+			telephone=#{telephone},
+		</if>
+		<if test="bank!=null and bank != ''">
+			bank=#{bank},
+		</if>
+		<if test="accountNum!=null and accountNum != ''">
+			account_num=#{accountNum},
+		</if>
+		<if test="isCompay!=null and isCompay != ''">
+			is_compay=#{isCompay},
+		</if>
+		<if test="isDefault!=null and isDefault != ''">
+			is_default=#{isDefault},
+		</if>
+		gmt_modified = now()
+		where
+		id = #{id}
+	</update>
+
+	<select id="GiftOrderBill_list" resultMap="get-GiftOrderBill-result">
+		select
+		<include refid="GiftOrderBill_Base_Column_List" />
+		from
+		gift_buy_t_order_bill
+		where
+		is_deleted = 0
+		<if test="orderNum!=null and orderNum!=''">
+			and order_num=#{orderNum}
+		</if>
+		<if test="orderId!=null and orderId!=''">
+			and order_id=#{orderId}
+		</if>
+		<if test="customerId!=null and customerId!=''">
+			and customer_id=#{customerId}
+		</if>
+	</select>
+
+    <update id="GiftOrderBill_logicDelete" parameterType="com.mocentre.gift.buy.model.GiftOrderBill">
+		update gift_buy_t_order_bill
+		set
+			is_deleted=1 ,gmt_modified = now()
+		<where>
+			is_deleted = 0
+			<if test="orderNum!=null and orderNum!=''">
+				and order_num=#{orderNum}
+			</if>
+			<if test="orderId!=null and orderId!=''">
+				and order_id=#{orderId}
+			</if>
+			<if test="id!=null">
+				and id = #{id}
+			</if>
+		</where>
+	</update>
+
+</mapper>

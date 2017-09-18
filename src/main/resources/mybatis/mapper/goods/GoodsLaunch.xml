@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.GoodsLaunch">
+    <resultMap id="get-GoodsLaunch-result" type="com.mocentre.tehui.goods.model.GoodsLaunch">
+        <id property="id" column="id"/>
+        <!-- 商品id-->
+        <result property="goodsId" column="goods_id"/>
+        <!-- 投放省份-->
+        <result property="province" column="be_province"/>
+        <!-- 投放城市-->
+        <result property="city" column="be_city"/>
+        <!-- 投放区、县-->
+        <result property="area" column="be_area"/>
+        <!-- 投放经度-->
+        <result property="longitude" column="be_longitude"/>
+        <!-- 投放纬度-->
+        <result property="latitude" column="be_latitude"/>
+        <!-- 投放区域code-->
+        <result property="areasCode" column="areas_code"/>
+        <!-- 投放区域名称-->
+        <result property="areasName" column="areas_name"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="GoodsLaunch_Base_Column_List">
+        id, goods_id, be_province, be_city, be_area, 
+        be_longitude, be_latitude, areas_code, areas_name,
+        is_deleted, gmt_created, gmt_modified
+    </sql>
+
+    <select id="GoodsLaunch_get" resultMap="get-GoodsLaunch-result">
+        select
+            <include refid="GoodsLaunch_Base_Column_List"/>
+        from
+            gd_t_goods_launch
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="GoodsLaunch_list" resultMap="get-GoodsLaunch-result">
+        select
+            <include refid="GoodsLaunch_Base_Column_List"/>
+        from
+            gd_t_goods_launch
+        where
+            is_deleted = 0
+            <if test="goodsId != null">
+                and goods_id = #{goodsId}
+            </if>
+            <if test="province != null">
+                and be_province = #{province}
+            </if>
+            <if test="city != null">
+                and be_city = #{city}
+            </if>
+            <if test="area != null">
+                and be_area = #{area}
+            </if>
+            <if test="areasCode != null">
+                and areas_code = #{areasCode}
+            </if>
+    </select>
+
+	<update id="GoodsLaunch_update" parameterType="com.mocentre.tehui.goods.model.GoodsLaunch">
+		update 
+			 gd_t_goods_launch
+		<set>
+            <if test="goodsId != null ">
+                goods_id = #{goodsId},
+            </if>
+            <if test="province != null ">
+                be_province = #{province},
+            </if>
+            <if test="city != null ">
+                be_city = #{city},
+            </if>
+            <if test="area != null ">
+                be_area = #{area},
+            </if>
+            <if test="longitude != null ">
+                be_longitude = #{longitude},
+            </if>
+            <if test="latitude != null ">
+                be_latitude = #{latitude},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+	</update>
+
+    <insert id="GoodsLaunch_insert" parameterType="com.mocentre.tehui.goods.model.GoodsLaunch">
+        insert into gd_t_goods_launch
+            (goods_id, be_province, be_city, be_area,be_longitude, be_latitude,
+             areas_code, areas_name, is_deleted,gmt_created,gmt_modified)
+        values
+            (#{goodsId}, #{province}, #{city}, #{area}, #{longitude}, #{latitude},
+             #{areasCode}, #{areasName}, 0, now(), now() )
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <delete id="GoodsLaunch_deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete 
+        	from gd_t_goods_launch 
+        where 
+        	id = #{id}
+    </delete>
+    
+    <delete id="GoodsLaunch_del_goodsId" parameterType="java.lang.Long">
+        delete 
+        	from gd_t_goods_launch 
+        where 
+        	goods_id = #{goodsId}
+    </delete>
+
+</mapper>

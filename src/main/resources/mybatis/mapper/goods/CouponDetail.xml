@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.CouponDetail">
+	<resultMap id="get-CouponDetail-result" type="com.mocentre.tehui.goods.model.CouponDetail">
+		<id property="id" column="id" />
+    	<result property="couponId" column="coupon_id" />
+    	<result property="couponSn" column="coupon_sn" />
+    	<result property="relateType" column="relate_type" />
+    	<result property="typeIds" column="type_ids" />
+    	<result property="fullCut" column="full_cut" />
+    	<result property="status" column="status" />
+    	<result property="beginTime" column="begin_time" />
+    	<result property="endTime" column="end_time" />
+    	<result property="couponDes" column="coupon_des" />
+    	<result property="couponMoney" column="coupon_money" />
+    	<result property="receiveTime" column="receive_time" />
+    	<result property="useTime" column="use_time" />
+    	<result property="customerId" column="customer_id" />
+    	<result property="isDeleted" column="is_deleted" />
+    	<result property="gmtCreated" column="gmt_created" />
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="CouponDetail_Base_Column_List">
+		id, coupon_id, coupon_sn, status, relate_type, 
+		type_ids, full_cut, begin_time, end_time, coupon_des, 
+		coupon_money, receive_time, use_time, customer_id, 
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+    
+    <select id="CouponDetail_get" resultMap="get-CouponDetail-result">
+		select
+    		<include refid="CouponDetail_Base_Column_List" />
+	 	from 
+			gd_t_coupon_detail
+		where 
+				id = #{id}
+			and is_deleted = 0
+    </select>
+	
+	<select id="CouponDetail_list" resultMap="get-CouponDetail-result">
+		select
+    		<include refid="CouponDetail_Base_Column_List" />
+	 	from
+			gd_t_coupon_detail
+		<where>
+			<if test="couponId != null">
+            	and coupon_id = #{couponId}
+        	</if>
+        	<if test="couponSn != null and couponSn !=''">
+            	and coupon_sn = #{couponSn}
+        	</if>
+        	<if test="customerId != null">
+            	and customer_id = #{customerId}
+        	</if>
+        	<if test="status != null and status !=''">
+            	and status = #{status}
+        	</if>
+        	<if test="beginTime != null">
+            	date_format(begin_time, '%Y%m%d')<![CDATA[>=]]>and date_format(#{beginTime}, '%Y%m%d')
+        	</if>
+        	<if test="endTime != null">
+            	date_format(end_time, '%Y%m%d')<![CDATA[<=]]>and date_format(#{endTime}, '%Y%m%d')
+        	</if>
+        	<if test="notExpired != null">
+        		and date_format(now(), '%Y%m%d')<![CDATA[>=]]>date_format(begin_time, '%Y%m%d')
+        		and date_format(now(), '%Y%m%d')<![CDATA[<=]]>date_format(end_time, '%Y%m%d')
+        	</if>
+        	<if test="expired != null">
+        		and date_format(now(), '%Y%m%d')<![CDATA[>]]>date_format(end_time, '%Y%m%d')
+        	</if>
+        	and is_deleted= 0 
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by 
+		<choose>
+			<when test="orderColumn=='coupon_sn'"> 
+				coupon_sn
+			</when>
+			<when test="orderColumn=='status'"> 
+				status
+			</when>
+			<when test="orderColumn=='end_time'"> 
+				end_time
+			</when>
+		</choose> 
+			<if test="orderBy!=null and orderBy!=''">
+			${orderBy}
+			</if>
+		</if>
+    </select>
+    
+    <select id="CouponDetail_one" resultMap="get-CouponDetail-result">
+		select
+    		<include refid="CouponDetail_Base_Column_List" />
+	 	from 
+			gd_t_coupon_detail
+		where 
+				coupon_id = #{couponId}
+			and customer_id is null
+			and is_deleted = 0
+			limit 0,1
+    </select>
+	
+   <insert id="CouponDetail_insert_batch" parameterType="com.mocentre.tehui.goods.model.CouponDetail" >
+      insert into gd_t_coupon_detail
+		(coupon_id, coupon_sn, relate_type, type_ids, full_cut, 
+		begin_time, end_time, coupon_des, coupon_money, customer_id,
+		status, gmt_created, gmt_modified)
+		values
+		<foreach collection="list" item="item" index="index" separator="," > 
+		(#{item.couponId},#{item.couponSn},#{item.relateType}, #{item.typeIds}, #{item.fullCut},
+		#{item.beginTime}, #{item.endTime}, #{item.couponDes}, #{item.couponMoney}, #{item.customerId}, 
+		#{item.status}, now(), now()) 
+		</foreach>
+    </insert>
+
+	<insert id="CouponDetail_insert" parameterType="com.mocentre.tehui.goods.model.CouponDetail" >
+		insert into gd_t_coupon_detail
+		(coupon_id, coupon_sn, relate_type, type_ids, full_cut,
+		begin_time, end_time, coupon_des, coupon_money, customer_id,
+		status, gmt_created,gmt_modified)
+		values
+		(#{couponId},#{couponSn},#{relateType}, #{typeIds}, #{fullCut},
+		#{beginTime}, #{endTime}, #{couponDes}, #{couponMoney}, #{customerId},
+		#{status}, now(),now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+    
+    <update id="CouponDetail_update_cum_bysn" parameterType="com.mocentre.tehui.goods.model.CouponDetail">
+    	update
+    		gd_t_coupon_detail
+		set
+			customer_id = #{customerId},
+			status = #{status},
+			receive_time = #{receiveTime},
+			gmt_modified = now()
+    	where 
+			coupon_sn = #{couponSn}
+    </update>
+    
+    <update id="CouponDetail_update_use_bysn" parameterType="com.mocentre.tehui.goods.model.CouponDetail">
+    	update
+    		gd_t_coupon_detail
+		set
+			status = #{status},
+			use_time = #{useTime},
+			gmt_modified = now()
+    	where 
+				coupon_sn = #{couponSn}
+			and customer_id = #{customerId}
+    </update>
+    
+    <update id="CouponDetail_update_detail_bycid" parameterType="com.mocentre.tehui.goods.model.CouponDetail">
+    	update 
+    		gd_t_coupon_detail
+		set
+			full_cut = #{fullCut},
+			coupon_money = #{couponMoney},
+			begin_time = #{beginTime},
+			end_time = #{endTime},
+			coupon_des = #{couponDes},
+			gmt_modified = now()
+    	where 
+			coupon_id = #{couponId}
+    </update>
+    
+	<delete id="CouponDetail_delete_bycid" parameterType="com.mocentre.tehui.goods.model.CouponDetail">
+		delete from gd_t_coupon_detail
+		where 
+			coupon_id = #{couponId}
+  	</delete>
+  	
+  	<delete id="CouponDetail_delete_bycsn" parameterType="com.mocentre.tehui.goods.model.CouponDetail">
+		delete from gd_t_coupon_detail
+		where 
+			coupon_sn = #{couponSn}
+  	</delete>
+  	
+</mapper>

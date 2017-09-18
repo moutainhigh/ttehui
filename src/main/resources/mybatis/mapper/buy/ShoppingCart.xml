@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.ShoppingCart">
+	<resultMap id="get-ShoppingCart-result" type="com.mocentre.tehui.buy.model.ShoppingCart">
+		<id property="id" column="id" />
+		<!-- 用户id-->
+    	<result property="customerId" column="customer_id" />
+		<!-- 店铺id-->
+    	<result property="shopId" column="shop_id" />
+		<!-- 店铺名称-->
+    	<result property="shopName" column="shop_name" />
+		<!-- 商品id-->
+    	<result property="goodsId" column="goods_id" />
+		<!-- 商品名称-->
+    	<result property="goodsName" column="goods_name" />
+		<!-- 商品logo地址-->
+    	<result property="showLogo" column="show_logo" />
+		<!-- 商品原价-->
+    	<result property="oldPrice" column="old_price" />
+		<!-- 商品售价-->
+    	<result property="sellPrice" column="sell_price" />
+		<!-- 购买数量-->
+    	<result property="num" column="num" />
+		<!-- 商品规格(指定格式)-->
+    	<result property="goodsSku" column="goods_sku" />
+    	<!-- 商品规格描述-->
+    	<result property="goodsSkuDes" column="goods_sku_des" />
+    	<!-- 活动商品id -->
+    	<result property="actGoodsId" column="act_goods_id" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="ShoppingCart_Base_Column_List">
+		id, customer_id, shop_id, shop_name, goods_id, 
+		goods_name, show_logo, old_price, sell_price, num, 
+    	goods_sku, goods_sku_des, act_goods_id,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="ShoppingCart_get" resultMap="get-ShoppingCart-result">
+		select
+    		<include refid="ShoppingCart_Base_Column_List" />
+	 	from 
+			buy_t_shopping_cart
+		where 
+			id = #{id}
+		and is_deleted = 0
+    </select>
+	
+	<select id="ShoppingCart_list" resultMap="get-ShoppingCart-result">
+		select
+			<include refid="ShoppingCart_Base_Column_List" />
+	 	from 
+			buy_t_shopping_cart  
+		<where>
+			<if test="id!=null">
+				and id = #{id}
+			</if>  
+			<if test="customerId!=null">
+				and customer_id = #{customerId}
+			</if>  
+			<if test="goodsId!=null">
+				and goods_id = #{goodsId}
+			</if>
+			<if test="goodsSku!=null and goodsSku!=''">
+				and goods_sku = #{goodsSku}
+			</if>
+			<if test="actGoodsId!=null">
+				and act_goods_id = #{actGoodsId}
+			</if>
+			and	is_deleted = 0
+		</where> 
+    </select>
+    
+    <select id="ShoppingCart_count" resultType="java.lang.Integer">
+		select
+			count(1)
+	 	from 
+			buy_t_shopping_cart  
+		<where>
+			<if test="customerId!=null">
+				and customer_id = #{customerId}
+			</if>
+			and	is_deleted = 0
+		</where> 
+    </select>
+    
+    <select id="ShoppingCart_sum" resultType="java.lang.Integer">
+		select
+			sum(num)
+	 	from 
+			buy_t_shopping_cart  
+		where
+				customer_id = #{customerId}
+			and goods_id = #{goodsId}
+			and act_goods_id = #{actGoodsId}
+			and	is_deleted = 0
+    </select>
+	
+   <insert id="ShoppingCart_insert" parameterType="com.mocentre.tehui.buy.model.ShoppingCart" >
+      insert into buy_t_shopping_cart(
+		customer_id, shop_id, shop_name, goods_id,
+		goods_name, show_logo, old_price, sell_price,
+		num, goods_sku, goods_sku_des, act_goods_id,
+		is_deleted, gmt_created, gmt_modified)
+		values(
+		#{customerId}, #{shopId}, #{shopName}, #{goodsId},
+		#{goodsName}, #{showLogo}, #{oldPrice}, #{sellPrice},
+		#{num}, #{goodsSku}, #{goodsSkuDes}, #{actGoodsId},
+		0, #{gmtCreated}, #{gmtModified})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="ShoppingCart_update" parameterType="com.mocentre.tehui.buy.model.ShoppingCart">
+    	update buy_t_shopping_cart
+		set
+         	num = #{num},
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+	<delete id="ShoppingCart_delete" parameterType="com.mocentre.tehui.buy.model.ShoppingCart">
+    	delete from buy_t_shopping_cart
+		where
+				id = #{id}
+			and customer_id = #{customerId}
+  	</delete>
+  	
+  	<delete id="ShoppingCart_delete_goods" parameterType="com.mocentre.tehui.buy.model.ShoppingCart">
+    	delete from buy_t_shopping_cart
+		where 
+				customer_id = #{customerId}
+			and goods_id = #{goodsId}
+			and goods_sku = #{goodsSku}
+			and act_goods_id = #{actGoodsId}
+  	</delete>
+  	
+  	<delete id="ShoppingCart_delete_cum" parameterType="com.mocentre.tehui.buy.model.ShoppingCart">
+    	delete from buy_t_shopping_cart
+		where 
+			customer_id = #{customerId}
+  	</delete>
+  	
+</mapper>

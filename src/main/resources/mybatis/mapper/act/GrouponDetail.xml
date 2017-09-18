@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.act.model.GrouponDetail">
+	<resultMap id="get-GrouponDetail-result" type="com.mocentre.tehui.act.model.GrouponDetail">
+		<id property="id" column="id" />
+		<!-- 参团id -->
+		<result property="grouponId" column="groupon_id" />
+		<!-- 拼团商品表关联id -->
+		<result property="actGoodsId" column="act_goods_id" />
+		<!-- 参团时间 -->
+		<result property="takeTime" column="take_time" />
+		<!-- 参与者用户id -->
+		<result property="takeUserId" column="take_user_id" />
+		<!-- 参与者用户头像-->
+		<result property="takeProfile" column="take_profile" />
+		<!-- 是否团长-->
+		<result property="isHead" column="is_head" />
+		<!-- 是否付款-->
+		<result property="isPay" column="is_pay" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="GrouponDetail_Base_Column_List">
+		id, 
+		groupon_id, 
+		act_goods_id, 
+		take_time, 
+		take_user_id, 
+		take_profile, 
+		is_head, 
+		is_pay,
+		gmt_created, 
+		gmt_modified, 
+		is_deleted
+	</sql>
+
+	<select id="GrouponDetail_get" resultMap="get-GrouponDetail-result">
+		select
+			<include refid="GrouponDetail_Base_Column_List" />
+		from
+			act_t_groupon_detail
+		where
+			is_deleted = 0 and groupon_id = #{grouponId}
+	</select>
+	
+	<select id="GrouponDetail_getByParam" resultMap="get-GrouponDetail-result">
+		select
+			<include refid="GrouponDetail_Base_Column_List" />
+		from
+			act_t_groupon_detail
+		where
+			is_deleted = 0 
+			<if test="grouponId != null">
+				and groupon_id = #{grouponId}
+			</if>
+			<if test="actGoodsId != null">
+				and act_goods_id = #{actGoodsId}
+			</if>
+			<if test="isHead != null">
+				and is_head = #{isHead}
+			</if>
+			<if test="isPay != null">
+				and is_pay = #{isPay}
+			</if>
+			<if test="takeUserId != null">
+				and take_user_id = #{takeUserId}
+			</if>
+	</select>
+	
+	<insert id="GrouponDetail_insert" parameterType="com.mocentre.tehui.act.model.GrouponDetail">
+		insert into act_t_groupon_detail
+		(
+			groupon_id, 
+			act_goods_id, 
+			take_time, 
+			take_user_id, 
+			take_profile, 
+			is_head, 
+			is_pay,
+			is_deleted, 
+			gmt_created, 
+			gmt_modified
+		)
+		values
+		(
+			#{grouponId}, 
+			#{actGoodsId}, 
+			now(), 
+			#{takeUserId}, 
+			#{takeProfile},
+			#{isHead},
+			#{isPay},
+			0, 
+			now(), 
+			now()
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="GrouponDetail_update" parameterType="com.mocentre.tehui.act.model.GrouponDetail">
+		update
+			act_t_groupon_detail
+		set
+			<if test="isPay != null">
+				is_pay = #{isPay},
+			</if>
+			gmt_modified = now()
+		where 
+				is_deleted = 0
+			and groupon_id = #{grouponId}
+			and take_user_id = #{takeUserId}
+	</update>
+
+</mapper>

@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.buy.model.Order">
+	<resultMap id="get-Order-result" type="com.mocentre.tehui.buy.model.Order">
+		<id property="id" column="id" />
+		<!-- 店铺id-->
+    	<result property="shopId" column="shop_id" />
+		<!-- 订单编号-->
+    	<result property="orderNum" column="order_num" />
+		<!-- 是否开发票-->
+    	<result property="isInvoice" column="is_invoice" />
+		<!-- 商品总价-->
+    	<result property="totalPrice" column="total_price" />
+		<!-- 配送费-->
+    	<result property="transFee" column="trans_fee" />
+		<!-- 下单时间-->
+    	<result property="orderTime" column="order_time" />
+		<!-- 订单状态（等待买家付款  等待卖家发货  等待确认收货  交易成功  交易关闭）-->
+    	<result property="orderStatus" column="order_status" />
+		<!-- 处理状态-->
+    	<result property="dealStatus" column="deal_status" />
+		<!-- 用户备注-->
+    	<result property="remark" column="remark" />
+		<!-- 收货地址id-->
+    	<result property="addressId" column="address_id" />
+		<!-- 用户id-->
+    	<result property="customerId" column="customer_id" />
+		<!-- 收件人-->
+    	<result property="recipient" column="recipient" />
+		<!-- 联系电话-->
+    	<result property="telephone" column="telephone" />
+		<!-- 收货地址-->
+    	<result property="address" column="address" />
+    	<!-- 使用的优惠码-->
+    	<result property="couponSn" column="coupon_sn" />
+    	<!-- 使用优惠券总金额-->
+    	<result property="couponMoney" column="coupon_money" />
+    	<!-- 订单类型 -->
+    	<result property="orderType" column="order_type" />
+    	<!-- 不同类型id -->
+    	<result property="typeId" column="type_id" />
+    	<!-- 支付编号 -->
+    	<result property="paymentNum" column="payment_num" />
+    	<!-- 订单来源类型 -->
+    	<result property="sourceType" column="source_type" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="Order_Base_Column_List">
+		id, shop_id, order_num, is_invoice, total_price,
+    	trans_fee, order_time, order_status, deal_status, remark,
+    	address_id, customer_id, recipient, telephone, address,
+    	coupon_sn, coupon_money, order_type, type_id, payment_num,
+    	source_type, 
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="Order_get" resultMap="get-Order-result">
+		select
+    		<include refid="Order_Base_Column_List" />
+	 	from 
+			buy_t_order
+		where 
+			is_deleted = 0
+			and id = #{id}
+    </select>
+	
+	<select id="Order_list" resultMap="get-Order-result">
+		select
+    		<include refid="Order_Base_Column_List" />
+	 	from
+			buy_t_order
+		<where>
+			<if test="id!=null">
+				and id=#{id}
+			</if>
+			<if test="shopId!=null">
+				and shop_id=#{shopId}
+			</if>    
+			<if test="orderStatus!=null and orderStatus!=''">
+	        	and order_status = #{orderStatus}
+			</if>
+			<if test="telephone!=null and telephone!=''">
+	        	and telephone = #{telephone}
+			</if>
+			<if test="recipient!=null and recipient!=''">
+	        	and recipient = #{recipient}
+			</if>
+			<if test="orderNum!=null and orderNum!=''">
+	        	and order_num = #{orderNum}
+			</if>
+			<if test="orderType!=null and orderType!=''">
+	        	and order_type = #{orderType}
+			</if>
+			<if test="typeId!=null">
+	        	and type_id = #{typeId}
+			</if>
+			<if test="customerId!=null">
+	        	and customer_id = #{customerId}
+			</if>
+			<if test="times!=null">
+	        	and unix_timestamp(now())-unix_timestamp(order_time)<![CDATA[ > ]]>#{times}
+			</if>
+			<if test="beginTime!=null and beginTime !=''">
+				and date_format(order_time, '%Y%m%d')<![CDATA[>=]]>date_format(#{beginTime}, '%Y%m%d')
+			</if>
+			<if test="endTime!=null and endTime !='' ">
+				and date_format(order_time, '%Y%m%d')<![CDATA[<=]]>date_format(#{endTime}, '%Y%m%d')
+			</if>
+			<if test="paymentNum!=null and paymentNum!=''">
+	        	and payment_num = #{paymentNum}
+			</if>
+			and is_deleted = 0
+		</where>
+		<if test="column!=null and column!=''">
+			order by 
+		<choose>
+			<when test="column=='telephone'"> 
+				telephone
+			</when>
+			<when test="column=='orderNum'"> 
+				order_num
+			</when>
+			<when test="column=='totalPrice'"> 
+				total_price  
+			</when>
+			<when test="column=='orderTime'"> 
+				order_time
+			</when>
+			<otherwise>
+				gmt_created
+			</otherwise>
+		</choose> 
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+    </select>
+
+	<select id="OrderAll_list" resultMap="get-Order-result">
+		select
+		<include refid="Order_Base_Column_List" />
+		from
+		buy_t_order
+		<where>
+			<if test="id!=null">
+				and id=#{id}
+			</if>
+			<if test="shopId!=null">
+				and shop_id=#{shopId}
+			</if>
+			<if test="orderStatus!=null and orderStatus!=''">
+				and order_status = #{orderStatus}
+			</if>
+			<if test="telephone!=null and telephone!=''">
+				and telephone = #{telephone}
+			</if>
+			<if test="recipient!=null and recipient!=''">
+				and recipient = #{recipient}
+			</if>
+			<if test="orderNum!=null and orderNum!=''">
+				and order_num = #{orderNum}
+			</if>
+			<if test="orderType!=null and orderType!=''">
+				and order_type = #{orderType}
+			</if>
+			<if test="typeId!=null">
+				and type_id = #{typeId}
+			</if>
+			<if test="customerId!=null">
+				and customer_id = #{customerId}
+			</if>
+			<if test="times!=null">
+				and unix_timestamp(now())-unix_timestamp(order_time)<![CDATA[ > ]]>#{times}
+			</if>
+			<if test="beginTime!=null and beginTime !=''">
+				and date_format(order_time, '%Y%m%d')<![CDATA[>=]]>date_format(#{beginTime}, '%Y%m%d')
+			</if>
+			<if test="endTime!=null and endTime !='' ">
+				and date_format(order_time, '%Y%m%d')<![CDATA[<=]]>date_format(#{endTime}, '%Y%m%d')
+			</if>
+			<if test="paymentNum!=null and paymentNum!=''">
+				and payment_num = #{paymentNum}
+			</if>
+		</where>
+		<if test="column!=null and column!=''">
+			order by
+			<choose>
+				<when test="column=='telephone'">
+					telephone
+				</when>
+				<when test="column=='orderNum'">
+					order_num
+				</when>
+				<when test="column=='totalPrice'">
+					total_price
+				</when>
+				<when test="column=='orderTime'">
+					order_time
+				</when>
+				<otherwise>
+					gmt_created
+				</otherwise>
+			</choose>
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+	</select>
+    
+    <select id="Order_goods_sum" resultType="java.lang.Integer">
+    	select
+			ifnull(sum(t2.goods_amount),0)	
+		from
+			buy_t_order t1,
+			buy_t_order_detail t2
+		where
+			t1.order_num = t2.order_num
+		and t1.customer_id = #{customerId}
+		and t1.order_type != #{orderType}
+		and t2.goods_id = #{goodsId}
+		and t2.goods_act_goods_id = #{actGoodsId}
+		and t1.is_deleted = 0
+    </select>
+	
+   <insert id="Order_insert" parameterType="com.mocentre.tehui.buy.model.Order" >
+      insert into buy_t_order
+		(shop_id, order_num, is_invoice, total_price, trans_fee,
+		order_time, order_status, deal_status, remark, address_id,
+		customer_id, recipient, telephone, address,coupon_sn ,coupon_money,
+		order_type, type_id, payment_num, source_type, 
+		is_deleted, gmt_created, gmt_modified)
+		values
+		(#{shopId}, #{orderNum}, #{isInvoice}, #{totalPrice}, #{transFee},
+		#{orderTime}, #{orderStatus}, #{dealStatus}, #{remark}, #{addressId},
+		#{customerId}, #{recipient}, #{telephone}, #{address}, #{couponSn}, 
+		#{couponMoney}, #{orderType}, #{typeId}, #{paymentNum}, #{sourceType},
+		0, #{gmtCreated}, #{gmtModified})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <insert id="Order_insert_batch" parameterType="java.util.List" >
+      insert into buy_t_order
+		(shop_id, order_num, is_invoice, total_price, trans_fee,
+		order_time, order_status, deal_status, remark, address_id,
+		customer_id, recipient, telephone, address,coupon_sn ,coupon_money,
+		order_type, type_id, payment_num, source_type, 
+		is_deleted, gmt_created, gmt_modified)
+		values
+		<foreach collection ="list" item ="item" index ="index" separator =",">
+		(#{item.shopId}, #{item.orderNum}, #{item.isInvoice}, #{item.totalPrice}, #{item.transFee},
+		#{item.orderTime}, #{item.orderStatus}, #{item.dealStatus}, #{item.remark}, #{item.addressId},
+		#{item.customerId}, #{item.recipient}, #{item.telephone}, #{item.address}, #{item.couponSn},
+		#{item.couponMoney}, #{item.orderType}, #{item.typeId}, #{item.paymentNum}, #{item.sourceType},
+		0, #{item.gmtCreated}, #{item.gmtModified})
+		</foreach>
+    </insert>
+    
+    <update id="Order_update" parameterType="com.mocentre.tehui.buy.model.Order">
+    	update buy_t_order
+		set
+			<if test="orderStatus!=null and orderStatus!=''">
+	        	order_status = #{orderStatus},
+			</if>
+			<if test="dealStatus!=null and dealStatus!=''">
+	        	deal_status = #{dealStatus},
+			</if>
+			<if test="paymentNum!=null and paymentNum!=''">
+	        	payment_num = #{paymentNum},
+			</if>
+			<if test="remark!=null and remark!=''">
+        		remark = #{remark},
+			</if>
+			<if test="isInvoice!=null">
+        		is_invoice = #{isInvoice},
+			</if>
+			<if test="addressId!=null">
+        		address_id = #{addressId},
+			</if>
+			<if test="telephone!=null and telephone!=''">
+	        	telephone = #{telephone},
+			</if>
+			<if test="recipient!=null and recipient!=''">
+	        	recipient = #{recipient},
+			</if>
+			<if test="address!=null and address!=''">
+	        	address = #{address},
+			</if>
+			<if test="totalPrice!=null">
+        		total_price = #{totalPrice},
+			</if>
+			<if test="transFee!=null">
+        		trans_fee = #{transFee},
+			</if>
+			<if test="couponSn!=null">
+	        	coupon_sn = #{couponSn},
+			</if>
+			<if test="couponMoney!=null">
+	        	coupon_money = #{couponMoney},
+			</if>
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+    <update id="Order_update_status" parameterType="com.mocentre.tehui.buy.model.Order">
+    	update buy_t_order
+		set
+	        order_status = #{orderStatus},
+			gmt_modified = now()
+    	where 
+			order_num = #{orderNum}
+    </update>
+    
+    <update id="Order_logicDelete" parameterType="com.mocentre.tehui.buy.model.Order">
+		update buy_t_order
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+	<update id="Order_close" parameterType="java.util.Map">
+		update buy_t_order
+		set
+			order_status=#{closeStatus} ,gmt_modified = now()
+		where
+				is_deleted = 0
+			and unix_timestamp(now())-unix_timestamp(order_time)<![CDATA[ > ]]>#{times}
+			and order_status=#{waitStatus}
+	</update>
+	
+	<delete id="Order_delete" parameterType="com.mocentre.tehui.buy.model.Order">
+		delete from buy_t_order
+		where 
+			id = #{id}
+  	</delete>
+  	
+  	<delete id="Order_logic_delete" parameterType="com.mocentre.tehui.buy.model.Order">
+		update buy_t_order
+		set
+			is_deleted = 1	
+		where 
+			order_num = #{orderNum}
+  	</delete>
+  	
+  	
+</mapper>

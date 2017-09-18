@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.bak.model.MallHome">
+	<resultMap id="get-MallHome-result" type="com.mocentre.tehui.bak.model.MallHome">
+		<id property="id" column="id" />
+		<result property="showLocal" column="show_local" />
+		<result property="isChain" column="is_chain" />
+		<result property="goodsId" column="goods_id" />
+		<result property="activityId" column="activity_id" />
+		<result property="actGoodsId" column="act_goods_id" />
+		<result property="goodsType" column="goods_type" />
+		<result property="showName" column="show_name" />
+		<result property="showImg" column="show_img" />
+		<result property="showPrice" column="show_price" />
+		<result property="oldPrice" column="old_price" />
+		<result property="showDes" column="show_des" />
+		<result property="linkUrl" column="link_url" />
+		<result property="sorting" column="sorting" />
+		<result property="tagImg" column="tag_img" />
+		<result property="gmtCreated" column="gmt_created" />
+		<result property="gmtModified" column="gmt_modified" />
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="MallHome_Base_Column_List">
+		id, show_local, is_chain, goods_id,
+		activity_id, act_goods_id, goods_type, show_name,
+		show_img, show_price, show_des, link_url, old_price,
+		sorting, tag_img, gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<select id="MallHome_get" resultMap="get-MallHome-result">
+		select
+			<include refid="MallHome_Base_Column_List" />
+		from
+			bak_t_mall_home
+		where
+			is_deleted = 0 and id = #{id}
+	</select>
+	
+	<select id="MallHome_list" resultMap="get-MallHome-result">
+		select
+			<include refid="MallHome_Base_Column_List" />
+		from
+			bak_t_mall_home
+		<where>
+			<if test="showLocal != null">
+            	and show_local = #{showLocal}
+        	</if>
+        	<if test="isChain != null">
+            	and is_chain = #{isChain}
+        	</if>
+			<if test="activityId != null">
+				and activity_id = #{activityId}
+			</if>
+        	<if test="goodsType != null">
+            	and goods_type = #{goodsType}
+        	</if>
+			<if test="goodsId != null">
+				and goods_id = #{goodsId}
+			</if>
+			<if test="actGoodsId != null">
+				and act_goods_id = #{actGoodsId}
+			</if>
+        	<if test="showName != null and showName !=''">
+           		and show_name like CONCAT('%',#{showName},'%')
+        	</if>
+        	and	is_deleted= 0 
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='sorting'">
+					sorting
+				</when>
+				<when test="orderColumn=='showLocal'">
+					show_local
+				</when>
+				<when test="orderColumn=='isChain'">
+					is_chain
+				</when>
+				<when test="orderColumn=='goodsType'">
+					goods_type
+				</when>
+				<when test="orderColumn=='showPrice'">
+					show_price
+				</when>
+			<otherwise>
+				gmt_created
+			</otherwise>
+			</choose>
+			<if test="orderBy!=null and orderBy!=''">${orderBy}</if>
+		</if>
+	</select>
+
+	<insert id="MallHome_insert" parameterType="com.mocentre.tehui.bak.model.MallHome">
+		insert into bak_t_mall_home
+		(show_local, is_chain,  goods_id, activity_id, 
+		 act_goods_id, goods_type, show_name, show_img, 
+		 show_price, show_des, link_url, old_price,
+		 sorting, tag_img, gmt_created, gmt_modified)
+		values
+		(#{showLocal}, #{isChain}, #{goodsId}, #{activityId},
+		 #{actGoodsId}, #{goodsType}, #{showName}, #{showImg},
+		 #{showPrice}, #{showDes}, #{linkUrl}, #{oldPrice},
+		 #{sorting}, #{tagImg}, now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="MallHome_update" parameterType="com.mocentre.tehui.bak.model.MallHome">
+		update
+			bak_t_mall_home
+		<set>
+			<if test="showLocal != null">
+				show_local = #{showLocal},
+			</if>
+			<if test="isChain != null ">
+				is_chain = #{isChain},
+			</if>
+			<if test="goodsId != null ">
+				goods_id = #{goodsId},
+			</if>
+			<if test="activityId != null ">
+				activity_id = #{activityId},
+			</if>
+			<if test="actGoodsId != null ">
+				act_goods_id = #{actGoodsId},
+			</if>
+			<if test="goodsType != null">
+				goods_type = #{goodsType},
+			</if>
+			<if test="showName != null and showName!='' ">
+				show_name = #{showName},
+			</if>
+			<if test="showImg != null and showImg!='' ">
+				show_img = #{showImg},
+			</if>
+			<if test="showPrice != null and showPrice!='' ">
+				show_price = #{showPrice},
+			</if>
+			<if test="oldPrice != null and oldPrice!='' ">
+				old_price = #{oldPrice},
+			</if>
+			<if test="showDes != null and showDes!='' ">
+				show_des = #{showDes},
+			</if>
+			<if test="linkUrl != null and linkUrl!='' ">
+				link_url = #{linkUrl},
+			</if>
+			<if test="sorting != null">
+				sorting = #{sorting},
+			</if>
+			<if test="tagImg != null">
+				tag_img = #{tagImg},
+			</if>
+			gmt_modified = now()
+		</set>
+		where 
+			is_deleted = 0 and id = #{id}
+	</update>
+
+	<update id="MallHome_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update 
+			bak_t_mall_home
+		set
+			is_deleted = 1
+		where id = #{id}
+	</update>
+
+</mapper>

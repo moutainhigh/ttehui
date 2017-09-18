@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.weixin.model.Config">
+    <resultMap id="get-Config-result" type="com.mocentre.tehui.weixin.model.Config">
+        <id property="id" column="id" />
+        <!-- 编码(不可重复)-->
+        <result property="code" column="code" />
+        <!-- 小程序唯一编码-->
+        <result property="appid" column="appid" />
+        <!-- 小程序secret -->
+        <result property="secret" column="secret" />
+        <!-- 删除-->
+        <result property="isDeleted" column="is_deleted" />
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created" />
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified" />
+    </resultMap>
+
+    <sql id="Config_Base_Column_List">
+        id, code, appid, secret
+    </sql>
+
+    <!-- 查询-->
+    <select id="Config_list"  resultMap="get-Config-result" >
+        select
+        <include refid="Config_Base_Column_List" />
+        from
+        wx_t_config
+        <where>
+        <if test="code !=null and code != ''">
+            and code = #{code}
+        </if>
+        <if test="appid !=null and appid != ''">
+            and appid = #{appid}
+        </if>
+        <if test="secret !=null and secret !=''">
+            and secret = #{secret}
+        </if>
+        </where>
+    </select>
+
+</mapper>

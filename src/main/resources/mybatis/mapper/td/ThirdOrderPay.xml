@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.td.model.ThirdOrderPay">
+	<resultMap id="get-ThirdOrderPay-result" type="com.mocentre.tehui.td.model.ThirdOrderPay">
+		<id property="id" column="id" />
+    	<result property="paymentNum" column="payment_num" />
+    	<result property="orderNum" column="order_num" />
+    	<result property="orderAmount" column="order_amount" />
+    	<result property="payType" column="pay_type" />
+    	<result property="payDate" column="pay_date" />
+    	<result property="payStatus" column="pay_status" />
+    	<result property="batchNo" column="batch_no" />
+    	<result property="batchStatus" column="batch_status" />
+    	<result property="amount" column="amount" />
+    	<result property="remark" column="remark" />
+    	<result property="notifyType" column="notify_type" />
+    	<result property="irspRef" column="irsp_ref" />
+    	<result property="voucherNo" column="voucher_no" />
+    	<result property="hostDate" column="host_date" />
+    	<result property="hostTime" column="host_time" />
+    	<result property="mchId" column="mch_id" />
+    	<result property="isDeleted" column="is_deleted" />
+    	<result property="gmtCreated" column="gmt_created" />
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="ThirdOrderPay_Base_Column_List">
+		id, payment_num, order_num, order_amount, pay_type, 
+		pay_date, pay_status, batch_no,
+    	batch_status, amount, remark, notify_type, irsp_ref,
+    	voucher_no, host_date, host_time, mch_id,
+    	is_deleted, gmt_created, gmt_modified
+	</sql>
+	
+	<select id="ThirdOrderPay_list" resultMap="get-ThirdOrderPay-result">
+		select
+    		<include refid="ThirdOrderPay_Base_Column_List" />
+	 	from 
+			td_t_third_order_pay
+		<where>
+			<if test="orderNum!=null">
+				and order_num = #{orderNum}
+			</if>  
+			<if test="paymentNum!=null">
+				and payment_num = #{paymentNum}
+			</if>  
+			and is_deleted = 0
+		</where> 
+    </select>
+	
+   <insert id="ThirdOrderPay_insert" parameterType="com.mocentre.tehui.td.model.ThirdOrderPay" >
+      insert into td_t_third_order_pay(
+		payment_num, order_num, order_amount, pay_type, pay_date, pay_status, batch_no, 
+		batch_status, amount, remark, notify_type, irsp_ref, voucher_no,
+		host_date, host_time, mch_id,
+		is_deleted, gmt_created, gmt_modified)
+		values(
+		#{paymentNum}, #{orderNum}, #{orderAmount}, #{payType}, #{payDate}, #{payStatus}, #{batchNo}, 
+		#{batchStatus}, #{amount}, #{remark}, #{notifyType}, #{irspRef}, #{voucherNo},
+		#{hostDate}, #{hostTime}, #{mchId},
+		0, #{gmtCreated}, #{gmtModified})
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="ThirdOrderPay_update" parameterType="com.mocentre.tehui.td.model.ThirdOrderPay">
+    	update td_t_third_order_pay
+			set
+				<if test="payStatus!=null and payStatus!=''">
+	          		pay_status = #{payStatus},
+				</if>
+				<if test="batchStatus!=null and batchStatus!=''">
+	          		batch_status = #{batchStatus},
+				</if>
+				<if test="amount!=null">
+	          		amount = #{amount},
+				</if>
+				<if test="batchNo!=null and batchNo!=''">
+	          		remark = #{batchNo},
+				</if>
+				<if test="notifyType!=null">
+	          		notify_type = #{notifyType},
+				</if>
+				<if test="irspRef!=null and irspRef!=''">
+	          		irsp_ref = #{irspRef},
+				</if>
+				<if test="voucherNo!=null and voucherNo!=''">
+	          		voucher_no = #{voucherNo},
+				</if>
+				<if test="hostDate!=null and hostDate!=''">
+	          		host_date = #{hostDate},
+				</if>
+				<if test="hostTime!=null and hostTime!=''">
+	          		host_time = #{hostTime},
+				</if>
+				<if test="mchId!=null and mchId!=''">
+	          		mch_id = #{mchId},
+				</if>
+			gmt_modified = now()
+    	where 
+			payment_num = #{paymentNum}
+    </update>
+  	
+</mapper>

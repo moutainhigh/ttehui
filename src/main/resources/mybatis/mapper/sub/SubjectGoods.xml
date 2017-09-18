@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.sub.model.SubjectGoods">
+	<resultMap id="get-SubjectGoods-result" type="com.mocentre.tehui.sub.model.SubjectGoods">
+		<id property="id" column="id" />
+		<!-- 专题id -->
+		<result property="subjectId" column="subject_id" />
+		<!-- 商品id -->
+		<result property="goodsId" column="goods_id" />
+		<!-- 商品图片 -->
+		<result property="goodsImg" column="goods_img" />
+		<!-- 商品名称 -->
+		<result property="goodsName" column="goods_name" />
+		<!-- 宣传语 -->
+		<result property="tagline" column="tagline" />
+		<!-- 商品售价(可能是区间) -->
+		<result property="sellPrice" column="sell_price" />
+		<!-- 商品原价(可能是区间) -->
+		<result property="oldPrice" column="old_price" />
+		<!-- 商品最低售价 -->
+		<result property="sellLowPrice" column="sell_low_price" />
+		<!-- 商品最低原价 -->
+		<result property="oldLowPrice" column="old_low_price" />
+		<!-- 排序 -->
+		<result property="sorting" column="sorting" />
+		<!-- 创建时间 -->
+		<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间 -->
+		<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+
+	<sql id="SubjectGoods_Base_Column_List">
+		id, subject_id, goods_id, goods_img, goods_name,
+		tagline, sell_price, old_price, sell_low_price, old_low_price,
+		sorting, gmt_created, gmt_modified, is_deleted
+	</sql>
+
+	<select id="SubjectGoods_list" resultMap="get-SubjectGoods-result">
+		select
+			<include refid="SubjectGoods_Base_Column_List" />
+		from
+			sub_r_subject_goods
+		<where>
+				is_deleted= 0 
+        	<if test="subjectId != null">
+            	and subject_id = #{subjectId}
+        	</if>
+			<if test="goodsId != null">
+				and goods_id = #{goodsId}
+			</if>
+			<if test="goodsName != null">
+				and goods_name = #{goodsName}
+			</if>
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by
+			<choose>
+				<when test="orderColumn=='gmtCreated'">
+					gmt_created
+				</when>
+				<when test="orderColumn=='sorting'">
+					sorting
+				</when>
+			</choose>
+			${orderBy}
+		</if>
+	</select>
+
+	<select id="SubjectGoods_get" resultMap="get-SubjectGoods-result">
+		select
+			<include refid="SubjectGoods_Base_Column_List" />
+		from
+			sub_r_subject_goods
+		where
+			is_deleted = 0 and id = #{id}
+	</select>
+
+	<insert id="SubjectGoods_insert" parameterType="com.mocentre.tehui.sub.model.SubjectGoods">
+		insert into sub_r_subject_goods
+		(subject_id, goods_id, goods_img, goods_name, tagline,
+		 sell_price, old_price, sell_low_price, old_low_price,
+		 sorting, is_deleted, gmt_created, gmt_modified)
+		values
+		(#{subjectId}, #{goodsId}, #{goodsImg}, #{goodsName}, #{tagline},
+		 #{sellPrice}, #{oldPrice}, #{sellLowPrice}, #{oldLowPrice},
+		 #{sorting}, 0, now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="SubjectGoods_update" parameterType="com.mocentre.tehui.sub.model.SubjectGoods">
+		update
+			sub_r_subject_goods
+		<set>
+        	<if test="goodsImg != null and goodsImg != '' ">
+            	goods_img = #{goodsImg},
+        	</if>
+        	<if test="tagline != null and tagline != '' ">
+            	tagline = #{tagline},
+        	</if>
+			<if test="sorting != null ">
+				sorting = #{sorting},
+			</if>
+        	gmt_modified = now()
+		</set>
+		where id = #{id}
+	</update>
+	
+	<update id="SubjectGoods_update_goods" parameterType="com.mocentre.tehui.sub.model.SubjectGoods">
+		update
+			sub_r_subject_goods
+		<set>
+			<if test="goodsName != null and goodsName != ''">
+            	goods_name = #{goodsName},
+        	</if>
+			<if test="sellPrice != null and sellPrice != ''">
+            	sell_price = #{sellPrice},
+        	</if>
+			<if test="oldPrice != null and oldPrice != ''">
+            	old_price = #{oldPrice},
+        	</if>
+        	<if test="sellLowPrice != null">
+            	sell_low_price = #{sellLowPrice},
+        	</if>
+			<if test="oldLowPrice != null">
+            	old_low_price = #{oldLowPrice},
+        	</if>
+			<if test="sorting != null">
+				sorting = #{sorting},
+			</if>
+        	gmt_modified = now()
+		</set>
+		where goods_id = #{goodsId}
+	</update>
+
+	<update id="SubjectGoods_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update
+			sub_r_subject_goods
+		set
+			is_deleted = 1
+		where id = #{id}
+	</update>
+	
+	<update id="SubjectGoods_logicRemoveBySubject" parameterType="java.lang.Long">
+		update
+			sub_r_subject_goods
+		set
+			is_deleted = 1
+		where subject_id = #{subjectId}
+	</update>
+	
+</mapper>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.gift.gd.model.GiftCategory">
+    <resultMap id="get-GiftCategory-result" type="com.mocentre.gift.gd.model.GiftCategory">
+        <id property="id" column="id"/>
+        <!-- 父id -->
+        <result property="pid" column="pid"/>
+        <!-- 名称 -->
+        <result property="name" column="name"/>
+        <!-- 是否展示 -->
+        <result property="isShow" column="is_show"/>
+        <!-- 分类类型 -->
+        <result property="cType" column="c_type"/>
+        <!-- 分类排序 -->
+        <result property="sorting" column="sorting"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+        <!-- 是否删除-->
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+
+    <sql id="GiftCategory_Base_Column_List">
+        id, pid, name, is_show, c_type, sorting, gmt_created, gmt_modified, is_deleted
+    </sql>
+
+    <!-- get -->
+    <select id="GiftCategory_get" resultMap="get-GiftCategory-result">
+        select
+            <include refid="GiftCategory_Base_Column_List"/>
+        from
+            gift_gd_t_category
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <!-- queryList-->
+    <select id="GiftCategory_list" resultMap="get-GiftCategory-result">
+        select
+            <include refid="GiftCategory_Base_Column_List"/>
+        from
+            gift_gd_t_category
+        <where>
+            is_deleted= 0
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="pid != null and pid == 0 ">
+                and pid IS NOT NULL
+            </if>
+            <if test="pid == null ">
+                and pid IS NULL
+            </if>
+            <if test="pid != null and pid != 0">
+                and pid = #{pid}
+            </if>
+            <if test="name != null and name!='' ">
+                and name = #{name}
+            </if>
+            <if test="isShow != null">
+                and is_show = #{isShow}
+            </if>
+            <if test="cType != null and cType!='' ">
+                and c_type = #{cType}
+            </if>
+            <if test="sorting != null">
+                and sorting = #{sorting}
+            </if>
+        </where>
+        <if test="column!=null and column!=''">
+            order by
+            <choose>
+                <when test="column=='sorting'">
+                    sorting
+                </when>
+            </choose>
+            ${orderBy}
+        </if>
+    </select>
+
+    <!-- queryParam-->
+    <select id="GiftCategory_byParam" resultMap="get-GiftCategory-result">
+        select
+            <include refid="GiftCategory_Base_Column_List"/>
+        from
+            gift_gd_t_category
+        where
+            is_deleted = 0
+        <if test="id != null ">
+            and id = #{id}
+        </if>
+        <if test="pid != null and pid == 0 ">
+            and pid IS NOT NULL
+        </if>
+        <if test="pid == null ">
+            and pid IS NULL
+        </if>
+        <if test="pid != null and pid != 0">
+            and pid = #{pid}
+        </if>
+        <if test="name != null and name!='' ">
+            and name = #{name}
+        </if>
+        <if test="isShow != null">
+            and is_show = #{isShow}
+        </if>
+        <if test="cType != null and cType!='' ">
+            and c_type = #{cType}
+        </if>
+    </select>
+
+    <!-- updateEntity -->
+	<update id="GiftCategory_update" parameterType="com.mocentre.gift.gd.model.GiftCategory">
+		update
+            gift_gd_t_category
+		<set>
+            <if test="pid != null">
+               pid = #{pid},
+            </if>
+            <if test="name != null and name!='' ">
+               name = #{name},
+            </if>
+            <if test="isShow != null">
+               is_show = #{isShow},
+            </if>
+            <if test="cType != null and cType!='' ">
+               c_type = #{cType},
+            </if>
+            <if test="sorting != null">
+                sorting = #{sorting},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+	</update>
+
+    <!-- saveEntity -->
+    <insert id="GiftCategory_insert" parameterType="com.mocentre.gift.gd.model.GiftCategory">
+        insert into gift_gd_t_category
+        (  pid, name, is_show, c_type, sorting, gmt_created, gmt_modified, is_deleted)
+        values
+        (
+        #{pid},
+        #{name},
+        #{isShow},
+        #{cType},
+        #{sorting},
+        now(),
+        now(),
+        0
+        )
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <!-- logicRemove -->
+    <update id="GiftCategory_logicDeleteByPrimaryKey" parameterType="long">
+        update
+            gift_gd_t_category
+        <set>
+            gmt_modified = now(),
+            is_deleted = 1
+        </set>
+        where
+            is_deleted = 0
+            and id = #{id} OR pid = #{id}
+    </update>
+
+</mapper>

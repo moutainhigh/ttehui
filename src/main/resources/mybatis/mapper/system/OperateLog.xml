@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.system.model.OperateLog">
+	<resultMap id="get-OperateLog-result" type="com.mocentre.tehui.system.model.OperateLog">
+		<id property="id" column="id" />
+		<!-- 操作者-->
+    	<result property="operator" column="operator" />
+		<!-- 标题-->
+    	<result property="title" column="title" />
+		<!-- 类型-->
+    	<result property="type" column="type" />
+		<!-- 操作内容-->
+    	<result property="content" column="content" />
+		<!-- ip-->
+    	<result property="ip" column="ip" />
+		<!-- 所在城市-->
+    	<result property="ipCity" column="ip_city" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 更新时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+		<!-- 是否删除-->
+    	<result property="isDeleted" column="is_deleted" />
+	</resultMap>
+	
+	<sql id="OperateLog_Base_Column_List">
+		id, operator, title, type, content,
+    	ip, ip_city,
+    	gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+	<select id="OperateLog_get" resultMap="get-OperateLog-result">
+		 select
+    		<include refid="OperateLog_Base_Column_List" />
+	 	 from 
+			sys_t_operate_log
+		 where 
+			id = #{id}
+    </select>
+	
+	<select id="OperateLog_list" resultMap="get-OperateLog-result">
+		select
+    		<include refid="OperateLog_Base_Column_List" />
+		from 
+			sys_t_operate_log 
+		order by 
+			gmt_created desc
+    </select>
+	
+   <insert id="OperateLog_insert" parameterType="com.mocentre.tehui.system.model.OperateLog" >
+      insert into sys_t_operate_log
+		(operator, title, type, content, ip, ip_city,
+		gmt_created, gmt_modified, is_deleted)
+		values
+		(#{operator}, #{title}, #{type}, #{content}, #{ip}, #{ipCity},
+		now(), now(), 1)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			 SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+</mapper>

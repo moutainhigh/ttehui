@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.GoodsChannel">
+    <resultMap id="get-GoodsChannel-result" type="com.mocentre.tehui.goods.model.GoodsChannel">
+        <id property="id" column="id"/>
+        <!-- 商品id-->
+        <result property="goodsId" column="goods_id"/>
+        <!-- 频道id-->
+        <result property="channelId" column="channel_id"/>
+        <!-- 商品在频道中的位置-->
+        <result property="channelSorting" column="channel_sorting"/>
+        <!-- 商品在频道中是否置顶-->
+        <result property="isTop" column="is_top"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+       <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="GoodsChannel_Base_Column_List">
+        id, goods_id, channel_id, channel_sorting, is_top
+    </sql>
+
+    <select id="GoodsChannel_get" resultMap="get-GoodsChannel-result">
+        select
+            <include refid="GoodsChannel_Base_Column_List"/>
+        from
+            gd_r_goods_channel
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <!--getAll-->
+    <select id="GoodsChannel_list" resultMap="get-GoodsChannel-result">
+        select
+            <include refid="GoodsChannel_Base_Column_List"/>
+        from
+        gd_r_goods_channel
+        where
+        	is_deleted = 0
+    </select>
+
+    <!--updateEntity-->
+	<update id="GoodsChannel_update" parameterType="com.mocentre.tehui.goods.model.GoodsChannel">
+		update
+            gd_r_goods_channel
+		<set>
+            <if test="goodsId != null">
+                goods_id = #{goodsId},
+            </if>
+            <if test="channelId != null">
+                channel_id = #{channelId},
+            </if>
+            <if test="channelSorting != null">
+                channel_sorting = #{channelSorting},
+            </if>
+            <if test="isTop != null">
+                is_top = #{isTop},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+	</update>
+
+    <!-- updateEntity 批量-->
+    <update id="GoodsChannel_update_List" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="begin" close="end;" separator=";">
+            update
+            gd_r_goods_channel
+            <set>
+                <if test="goodsId != null">
+                    goods_id = #{goodsId},
+                </if>
+                <if test="channelId != null">
+                    channel_id = #{channelId},
+                </if>
+                <if test="channelSorting != null">
+                    channel_sorting = #{channelSorting},
+                </if>
+                <if test="isTop != null">
+                    is_top = #{isTop},
+                </if>
+                gmt_modified = now()
+            </set>
+            where
+            is_deleted = 0
+            and id = #{id}
+        </foreach>
+    </update>
+
+    <!--saveEntity 批量添加-->
+    <insert id="GoodsChannel_insert_List" parameterType="java.util.List">
+        insert into gd_r_goods_channel
+        ( goods_id, channel_id, channel_sorting, is_top,is_deleted,gmt_created,gmt_modified)
+        values
+        <foreach collection="list" item="goodsChannel" index="index" separator="," >
+            (
+            #{goodsChannel.goodsId},
+            #{goodsChannel.channelId},
+            #{goodsChannel.channelSorting},
+            #{goodsChannel.isTop},
+            0,
+            now(),
+            now()
+            )
+        </foreach>
+    </insert>
+
+    <!--saveEntity-->
+    <insert id="GoodsChannel_insert" parameterType="com.mocentre.tehui.goods.model.GoodsChannel">
+        insert into gd_r_goods_channel
+        (    goods_id, channel_id, channel_sorting, is_top,is_deleted,gmt_created,gmt_modified)
+        values
+        (
+        #{goodsId},
+        #{channelId},
+        #{channelSorting},
+        #{isTop},
+        0,
+        now(),
+        now()
+        )
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <delete id="GoodsChannel_del_id" parameterType="long">
+        delete from  gd_r_goods_channel where id = #{id}
+    </delete>
+
+    <delete id="GoodsChannel_del_ids" parameterType="java.util.List">
+        delete from  gd_r_goods_channel where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!--delByGoodsId-->
+    <delete id="GoodsChannel_del_goodsId" parameterType="long">
+        delete from  gd_r_goods_channel where goods_id = #{goodsId}
+    </delete>
+
+    <!--delByChannelId-->
+    <delete id="GoodsChannel_del_channelId" parameterType="long">
+        delete from  gd_r_goods_channel where channel_id = #{channelId}
+    </delete>
+
+    <!--delByGoodsIdList-->
+    <delete id="GoodsChannel_del_goodsIdList" parameterType="java.util.List">
+        delete from gd_r_goods_channel where goods_id in
+        <foreach collection="list" item = "item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!--delByChannelIdList-->
+    <delete id="GoodsChannel_del_channelIdList" parameterType="java.util.List">
+        delete from gd_r_goods_channel where channel_id in
+        <foreach collection="list" item = "item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!--getGoodsIdListByChannelId-->
+    <select id="GoodsChannel_getGoodsId_ChannelId" resultType="long">
+        select
+            goods_id
+        from
+            gd_r_goods_channel
+        where
+        is_deleted = 0
+        and channel_id = #{channelId}
+        group by goods_id
+    </select>
+
+    <!--getChannelIdListByGoodsId-->
+    <select id="GoodsChannel_getChannelId_GoodsId" resultType="long">
+        select
+        channel_id
+        from
+        gd_r_goods_channel
+        where
+        is_deleted = 0
+        and goods_id = #{goodsId}
+        group by channel_id
+    </select>
+</mapper>

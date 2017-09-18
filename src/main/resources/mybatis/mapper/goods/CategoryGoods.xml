@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.CategoryGoods">
+    <resultMap id="get-CategoryGoods-result" type="com.mocentre.tehui.goods.model.CategoryGoods">
+        <id property="id" column="id"/>
+        <!-- 分类id-->
+        <result property="categoryId" column="category_id"/>
+        <!-- 是否外链-->
+        <result property="isChain" column="is_chain"/>
+        <!-- 商品id-->
+        <result property="goodsId" column="goods_id"/>
+        <!-- 展示名称 -->
+        <result property="showName" column="show_name"/>
+        <!-- 展示图片 -->
+        <result property="showImg" column="show_img"/>
+        <!-- 链接地址 -->
+        <result property="linkUrl" column="link_url"/>
+        <!-- 排序 -->
+        <result property="sorting" column="sorting"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="CategoryGoods_Base_Column_List">
+        id, category_id, is_chain, goods_id,
+        show_name, show_img, link_url, sorting
+    </sql>
+
+    <select id="CategoryGoods_get" resultMap="get-CategoryGoods-result">
+        select
+            <include refid="CategoryGoods_Base_Column_List"/>
+        from
+            gd_t_category_goods
+        where
+        	id = #{id} and is_deleted = 0
+    </select>
+
+    <select id="CategoryGoods_list" resultMap="get-CategoryGoods-result">
+        select
+        <include refid="CategoryGoods_Base_Column_List"/>
+        from
+            gd_t_category_goods
+        where
+            is_deleted = 0
+            <if test="categoryId != null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="isChain != null">
+                and is_chain = #{isChain}
+            </if>
+            <if test="goodsId != null">
+                and goods_id = #{goodsId}
+            </if>
+            <if test="showName != null and showName != ''">
+                and show_name like concat('%', #{showName},'%')
+            </if>
+         <if test="orderColumn!=null and orderColumn!=''">
+         	order by
+         		<if test="orderColumn=='sorting'">
+                    sorting
+	            </if>
+	            <if test="orderColumn=='isChain'">
+                    is_chain
+	            </if>
+         	<if test="orderBy!=null and orderBy!=''">
+         		${orderBy}
+         	</if>
+         </if>
+    </select>
+
+	<update id="CategoryGoods_update" parameterType="com.mocentre.tehui.goods.model.CategoryGoods">
+		update
+            gd_t_category_goods
+		<set>
+            category_id = #{categoryId},
+            goods_id = #{goodsId},
+            <if test="isChain != '' and isChain != null">
+                is_chain = #{isChain},
+            </if>
+            <if test="showName != null">
+                show_name = #{showName},
+            </if>
+            <if test="showImg != '' and showImg != null">
+                show_img = #{showImg},
+            </if>
+            <if test="linkUrl != '' and linkUrl != null">
+                link_url = #{linkUrl},
+            </if>
+            <if test="sorting != null">
+                sorting = #{sorting},
+            </if>
+            gmt_modified = now()
+        </set>
+		where
+			is_deleted = 0
+			and id = #{id}
+	</update>
+
+    <insert id="CategoryGoods_insert" parameterType="com.mocentre.tehui.goods.model.CategoryGoods">
+        insert into gd_t_category_goods
+        (category_id, is_chain, goods_id,
+        show_name, show_img, link_url, sorting,
+        is_deleted,gmt_created,gmt_modified)
+        values
+        (#{categoryId}, #{isChain}, #{goodsId},
+         #{showName}, #{showImg}, #{linkUrl}, #{sorting},
+         0, now(), now())
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT @@IDENTITY
+        </selectKey>
+    </insert>
+
+    <delete id="CategoryGoods_del_id" parameterType="long">
+        delete from
+            gd_t_category_goods
+        where
+            is_deleted = 0
+            and id = #{id}
+    </delete>
+
+    <delete id="CategoryGoods_del_ids" parameterType="java.util.List">
+        delete from
+            gd_t_category_goods
+        where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="CategoryGoods_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+        update
+            gd_t_category_goods
+        <set>
+            gmt_modified = now(),
+            is_deleted = 1
+        </set>
+            where id = #{id}
+            and is_deleted = 0
+    </update>
+</mapper>

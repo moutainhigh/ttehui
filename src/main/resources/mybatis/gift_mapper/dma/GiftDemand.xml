@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.gift.dma.model.GiftDemand">
+    <resultMap id="get-GiftDemand-result" type="com.mocentre.gift.dma.model.GiftDemand">
+        <id property="id" column="id"/>
+        <!-- 客户id-->
+        <result property="customerId" column="customer_id"/>
+        <!-- 应用场景 -->
+        <result property="scene" column="scene"/>
+        <!-- 礼品特征 -->
+        <result property="giftFeature" column="gift_feature"/>
+        <!-- 预算 -->
+        <result property="budget" column="budget"/>
+        <!-- 礼品总量 -->
+        <result property="giftNum" column="gift_num"/>
+        <!-- 联系电话-->
+        <result property="telephone" column="telephone"/>
+        <!-- 是否已联系（1:已联系；2:未联系）-->
+        <result property="status" column="status"/>
+        <!-- 创建时间-->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间-->
+        <result property="gmtModified" column="gmt_modified"/>
+        <!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+    </resultMap>
+
+    <sql id="GiftDemand_Base_Column_List">
+        id, 
+        customer_id,
+        scene,
+        gift_feature,
+        budget, 
+        gift_num, 
+        telephone, 
+        status,  
+        gmt_created, 
+		gmt_modified, 
+		is_deleted
+    </sql>
+
+    <select id="GiftDemand_get" resultMap="get-GiftDemand-result">
+		select
+			<include refid="GiftDemand_Base_Column_List" />
+		from
+			gift_dma_t_demand
+		where
+			is_deleted = 0 and id = #{id}
+	</select>
+	
+	<select id="GiftDemand_list" resultMap="get-GiftDemand-result">
+		select
+			<include refid="GiftDemand_Base_Column_List" />
+		from
+			gift_dma_t_demand
+		where
+			is_deleted = 0 
+			<if test="customerId != null">
+				and customer_id = #{customerId}
+			</if>
+			<if test="status != null">
+				and status = #{status}
+			</if>
+			<if test="column!=null and column!=''">
+				order by
+				<choose>
+					<when test="column=='gmtCreated'">
+						gmt_created
+					</when>
+				</choose>
+				${orderBy}
+			</if>
+	</select>
+	
+	<insert id="GiftDemand_insert" parameterType="com.mocentre.gift.dma.model.GiftDemand">
+		insert into gift_dma_t_demand
+		(
+			customer_id,
+	        scene,
+	        gift_feature,
+	        budget, 
+	        gift_num, 
+	        telephone, 
+	        status,  
+	        gmt_created, 
+			gmt_modified, 
+			is_deleted
+		)
+		values
+		(
+			#{customerId}, 
+			#{scene}, 
+			#{giftFeature}, 
+			#{budget}, 
+			#{giftNum}, 
+			#{telephone}, 
+			#{status},
+			now(), 
+			now(),
+			0
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="GiftDemand_changeStatus" parameterType="com.mocentre.gift.dma.model.GiftDemand">
+		update
+			gift_dma_t_demand
+		set
+			status = 1,
+			gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+	
+	<update id="GiftDemand_logicDeleteByPrimaryKey" parameterType="com.mocentre.gift.dma.model.GiftDemand">
+		update
+			gift_dma_t_demand
+		set
+			is_deleted = 1,
+			gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+</mapper>

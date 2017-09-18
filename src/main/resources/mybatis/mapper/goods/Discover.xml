@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.tehui.goods.model.Discover">
+	<resultMap id="get-Discover-result" type="com.mocentre.tehui.goods.model.Discover">
+		<id property="id" column="id" />
+		<!-- 店铺id-->
+    	<result property="shopId" column="shop_id" />
+		<!-- 是否关联商品 -->
+    	<result property="isGoods" column="is_goods" />
+		<!-- 频道id-->
+    	<result property="goodsChannel" column="goods_channel" />
+		<!-- 商品id-->
+    	<result property="goodsId" column="goods_id" />
+		<!-- 名称-->
+    	<result property="actName" column="act_name" />
+		<!-- 跳转链接-->
+    	<result property="url" column="url" />
+		<!-- 展示图片-->
+    	<result property="showImg" column="show_img" />
+		<!-- 是否显示-->
+    	<result property="isShow" column="is_show" />
+		<!-- 排序-->
+    	<result property="sorting" column="sorting" />
+		<!-- 删除-->
+    	<result property="isDeleted" column="is_deleted" />
+		<!-- 创建时间-->
+    	<result property="gmtCreated" column="gmt_created" />
+		<!-- 修改时间-->
+    	<result property="gmtModified" column="gmt_modified" />
+	</resultMap>
+	
+	<sql id="Discover_Base_Column_List">
+		id, shop_id, is_goods, goods_channel, goods_id,
+		act_name, url, show_img, is_show, sorting, 
+		gmt_created, gmt_modified, is_deleted
+	</sql>
+	
+    <select id="Discover_get" resultMap="get-Discover-result">
+		select
+    		<include refid="Discover_Base_Column_List" />
+	 	from 
+			gd_t_discover
+		where 
+				is_deleted = 0 
+			and id = #{id} 
+    </select>
+	
+	<select id="Discover_list" resultMap="get-Discover-result">
+		select
+    		<include refid="Discover_Base_Column_List" />
+	 	from
+			gd_t_discover
+		<where>
+			<if test="id != null">
+            	and id = #{id}
+        	</if>
+        	<if test="isShow != null">
+            	and is_show = #{isShow}
+        	</if>
+			and is_deleted= 0 
+		</where>
+		<if test="orderColumn!=null and orderColumn!=''">
+			order by 
+		<choose>
+			<when test="orderColumn=='sorting'"> 
+				sorting
+			</when>
+			<when test="orderColumn=='isShow'"> 
+				is_show
+			</when>
+			<when test="orderColumn=='isGoods'"> 
+				is_goods
+			</when>
+			<otherwise>
+				gmt_created
+			</otherwise>
+		</choose> 
+			<if test="orderBy != null">${orderBy}</if>
+		</if>
+    </select>
+	
+   <insert id="Discover_insert" parameterType="com.mocentre.tehui.goods.model.Discover" >
+      insert into gd_t_discover
+		(shop_id, is_goods, goods_channel, goods_id, act_name, 
+		 url, show_img, is_show, sorting, 
+		 gmt_created, gmt_modified)
+		values
+		(#{shopId}, #{isGoods}, #{goodsChannel}, #{goodsId}, #{actName},
+		 #{url}, #{showImg}, #{isShow}, #{sorting},
+		 now(), now())
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+    </insert>
+    
+    <update id="Discover_update" parameterType="com.mocentre.tehui.goods.model.Discover">
+    	update gd_t_discover
+		set
+			<if test="isGoods!=null">
+				is_goods = #{isGoods},
+			</if>
+			<if test="goodsChannel!=null">
+				goods_channel = #{goodsChannel},
+			</if>
+			<if test="goodsId!=null">
+				goods_id = #{goodsId},
+			</if>
+			<if test="actName!=null and actName!=''">
+				act_name = #{actName},
+			</if>
+			<if test="url!=null and url!=''">
+				url = #{url},
+			</if>
+			<if test="showImg!=null and showImg!=''">
+				show_img = #{showImg},
+			</if>
+			<if test="isShow!=null">
+				is_show = #{isShow},
+			</if>
+			<if test="sorting!=null">
+				sorting = #{sorting},
+			</if>
+			gmt_modified = now()
+    	where 
+			id = #{id}
+    </update>
+    
+	<delete id="Discover_delete" parameterType="java.lang.Long">
+		delete from gd_t_discover
+		where 
+			id = #{id}
+  	</delete>
+  	
+  	<update id="Discover_logicDelete" parameterType="com.mocentre.tehui.goods.model.Discover">
+		update gd_t_discover
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update> 
+  	
+  	<update id="Discover_logicDeleteByPrimaryKey" parameterType="java.lang.Long">
+		update gd_t_discover
+		set
+			is_deleted=1 ,gmt_modified = now()
+		where
+			id = #{id}
+	</update> 
+  	
+</mapper>

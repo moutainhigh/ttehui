@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ /*
+  ~  * Copyright 2016 mocentre.com All right reserved. This software is the
+  ~  * confidential and proprietary information of mocentre.com ("Confidential
+  ~  * Information"). You shall not disclose such Confidential Information and shall
+  ~  * use it only in accordance with the terms of the license agreement you entered
+  ~  * into with mocentre.com .
+  ~  */
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <context:property-placeholder
+            ignore-unresolvable="true" location="classpath*:/application-test.properties" />
+
+    <dubbo:application name="dubbo_moshop_ut" />
+    <!-- 连接注册中心配置 -->
+    <dubbo:registry address="${dubbo.registry.address}" />
+    <!-- 服务消费者缺省值配置 -->
+    <dubbo:consumer timeout="10000" retries="0" />
+
+    <import resource="spring-dubbo-consumer.xml" />
+</beans>

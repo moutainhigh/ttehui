@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mocentre.gift.mall.model.GiftBanner">
+    <resultMap id="get-GiftBanner-result" type="com.mocentre.gift.mall.model.GiftBanner">
+        <id property="id" column="id"/>
+        <!-- 名称 -->
+        <result property="name" column="name"/>
+        <!-- 移动端图片 -->
+        <result property="pcImg" column="pc_img"/>
+        <!-- pc端图片 -->
+        <result property="mobImg" column="mob_img"/>
+        <!-- 跳转链接 -->
+        <result property="linkUrl" column="link_url"/>
+        <!-- 排序 -->
+        <result property="sort" column="sort"/>
+        <!-- 是否展示 -->
+        <result property="isShow" column="is_show"/>
+		<!-- 关联商品id -->
+		<result property="goodsId" column="goods_id"/>
+		<!-- banner类型 -->
+		<result property="status" column="status"/>
+        <!-- 创建时间 -->
+        <result property="gmtCreated" column="gmt_created"/>
+        <!-- 修改时间 -->
+        <result property="gmtModified" column="gmt_modified"/>
+        <!-- 是否删除 -->
+		<result property="isDeleted" column="is_deleted" />
+    </resultMap>
+
+    <sql id="GiftBanner_Base_Column_List">
+        id, 
+        name,
+        pc_img,
+        mob_img,
+        link_url, 
+        sort, 
+        is_show,
+        goods_id,
+        status,
+        gmt_created, 
+		gmt_modified, 
+		is_deleted
+    </sql>
+
+    <select id="GiftBanner_get" resultMap="get-GiftBanner-result">
+		select
+			<include refid="GiftBanner_Base_Column_List" />
+		from
+			gift_mall_t_banner
+		where
+			is_deleted = 0 and id = #{id}
+	</select>
+	
+	<select id="GiftBanner_list" resultMap="get-GiftBanner-result">
+		select
+			<include refid="GiftBanner_Base_Column_List" />
+		from
+			gift_mall_t_banner
+		where
+			is_deleted = 0 
+			<if test="isShow != null">
+				and is_show = #{isShow}
+			</if>
+			<if test="column!=null and column!=''">
+				order by
+				<choose>
+					<when test="column=='sort'">
+						sort
+					</when>
+				</choose>
+				${orderBy}
+			</if>
+	</select>
+	
+	<insert id="GiftBanner_insert" parameterType="com.mocentre.gift.mall.model.GiftBanner">
+		insert into gift_mall_t_banner
+		(
+			name,
+	        pc_img,
+	        mob_img,
+	        link_url, 
+	        sort, 
+	        is_show,
+			goods_id,
+			status,
+	        gmt_created, 
+			gmt_modified, 
+			is_deleted
+		)
+		values
+		(
+			#{name}, 
+			#{pcImg}, 
+			#{mobImg}, 
+			#{linkUrl}, 
+			#{sort}, 
+			#{isShow},
+			#{goodsId},
+			#{status},
+			now(), 
+			now(),
+			0
+		)
+		<selectKey keyProperty="id" resultType="long" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="GiftBanner_update" parameterType="com.mocentre.gift.mall.model.GiftBanner">
+		update
+			gift_mall_t_banner
+		set
+			<if test="name != null and name !=''" >
+				name = #{name},
+			</if>
+			<if test="pcImg != null and pcImg !=''" >
+				pc_img = #{pcImg},
+			</if>
+			<if test="mobImg != null and mobImg !=''" >
+				mob_img = #{mobImg},
+			</if>
+			<if test="linkUrl != null and linkUrl !=''" >
+				link_url = #{linkUrl},
+			</if>
+			<if test="sort != null" >
+				sort = #{sort},
+			</if>
+			<if test="isShow != null" >
+				is_show = #{isShow},
+			</if>
+			<if test="goodsId != null" >
+				goods_id = #{goodsId},
+			</if>
+			<if test="status != null and status !=''">
+				status = #{status},
+			</if>
+			gmt_modified = now()
+		where 
+			is_deleted = 0 and id = #{id}
+	</update>
+	
+	<update id="GiftBanner_logicDeleteByPrimaryKey" parameterType="com.mocentre.gift.mall.model.GiftBanner">
+		update
+			gift_mall_t_banner
+		set
+			is_deleted = 1,
+			gmt_modified = now()
+		where
+			id = #{id}
+	</update>
+</mapper>
